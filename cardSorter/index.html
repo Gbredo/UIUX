@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Sorting App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="controls">
+        <div class="input-section">
+            <textarea id="feature-input" placeholder="Cole aqui sua lista (uma funcionalidade por linha)..."></textarea>
+            <button id="generate-btn">Gerar Cards</button>
+        </div>
+        <div class="actions-section">
+            <button id="add-group-btn">+ Novo Grupo</button>
+        </div>
+    </header>
+
+    <main class="board">
+        <div class="group default-group">
+            <h3>Não Agrupados</h3>
+            <div class="card-list" id="backlog-list">
+                </div>
+        </div>
+
+        <div id="workspace" class="workspace"></div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
