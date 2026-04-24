@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Os 4 Princípios do Design — C.R.A.P. · Robin Williams</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════════════ */
+:root {
+  --ink:      #0f0e0c;
+  --paper:    #f5f1e8;
+  --muted:    #7a7065;
+  --rule:     #d4ccbc;
+  --hi:       #f0e68c;
+
+  /* por princípio */
+  --c-contrast:   #c0392b;
+  --c-rep:        #1a5276;
+  --c-align:      #1e8449;
+  --c-prox:       #6c3483;
+}
+
+/* ════════════════════════════════════════════════
+   RESET / BASE
+════════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Lato',sans-serif;
+  font-weight:300;
+  line-height:1.75;
+  overflow-x:hidden;
+}
+p{margin-bottom:.9rem;color:#2a2825;}
+strong{font-weight:700;}
+em{font-style:italic;}
+mark{background:var(--hi);padding:0 3px;}
+
+/* ════════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════════ */
+.hero{
+  background:var(--ink);
+  color:var(--paper);
+  padding:4rem 4rem 3rem;
+  position:relative;
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;
+  font-size:22vw;font-weight:900;
+  color:rgba(255,255,255,.03);
+  letter-spacing:-.02em;
+  pointer-events:none;user-select:none;
+  line-height:1;
+}
+.hero-eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;
+  color:#aaa;margin-bottom:.8rem;
+}
+.hero h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.6rem,6vw,5.2rem);
+  font-weight:900;line-height:1;letter-spacing:-.02em;
+}
+.hero h1 em{color:#e8d5a3;}
+.hero-sub{
+  margin-top:1rem;font-size:.92rem;color:#bbb;
+  max-width:520px;line-height:1.6;
+}
+.crap-badges{
+  display:flex;flex-wrap:wrap;gap:.6rem;margin-top:2rem;
+}
+.crap-badge{
+  padding:.45rem 1.1rem;
+  font-family:'DM Mono',monospace;
+  font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;
+  cursor:pointer;transition:opacity .2s;border:none;
+  color:#fff;text-decoration:none;display:inline-block;
+}
+.crap-badge:hover{opacity:.8;}
+.cb-c{background:var(--c-contrast);}
+.cb-r{background:var(--c-rep);}
+.cb-a{background:var(--c-align);}
+.cb-p{background:var(--c-prox);}
+
+/* ════════════════════════════════════════════════
+   NAVEGAÇÃO STICKY
+════════════════════════════════════════════════ */
+.nav-sticky{
+  position:sticky;top:0;z-index:100;
+  background:var(--ink);
+  display:flex;gap:0;
+  box-shadow:0 2px 12px rgba(0,0,0,.25);
+}
+.nav-tab{
+  flex:1;padding:.7rem .5rem;
+  font-family:'DM Mono',monospace;
+  font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+  text-align:center;color:#999;
+  border:none;background:transparent;
+  cursor:pointer;transition:all .2s;
+  border-bottom:3px solid transparent;
+  text-decoration:none;display:block;
+}
+.nav-tab:hover{color:#fff;}
+.nav-tab.nt-c{border-bottom-color:var(--c-contrast);}
+.nav-tab.nt-r{border-bottom-color:var(--c-rep);}
+.nav-tab.nt-a{border-bottom-color:var(--c-align);}
+.nav-tab.nt-p{border-bottom-color:var(--c-prox);}
+
+/* ════════════════════════════════════════════════
+   LAYOUT / CONTAINER
+════════════════════════════════════════════════ */
+.container{max-width:960px;margin:0 auto;padding:0 2rem;}
+
+/* ════════════════════════════════════════════════
+   CAPÍTULO / SECTION HEADER
+════════════════════════════════════════════════ */
+.chapter{
+  padding:5rem 0 1rem;
+}
+.ch-eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
+  margin-bottom:.4rem;
+}
+.ch-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:900;line-height:1.05;
+  letter-spacing:-.02em;
+}
+.ch-accent{display:inline-block;width:3rem;height:4px;margin:1rem 0;}
+.ch-lead{font-size:1.05rem;color:#3a3730;max-width:640px;line-height:1.75;}
+
+/* ════════════════════════════════════════════════
+   DEFINIÇÃO BOX
+════════════════════════════════════════════════ */
+.def-box{
+  border-left:5px solid;
+  padding:1.5rem 2rem;
+  margin:2rem 0;
+  position:relative;
+}
+.def-box p{
+  font-family:'Playfair Display',serif;
+  font-size:1.08rem;font-style:italic;
+  color:#1a1814;margin:0;
+}
+.def-box cite{
+  display:block;margin-top:.6rem;
+  font-family:'DM Mono',monospace;
+  font-size:.68rem;letter-spacing:.12em;
+  color:var(--muted);font-style:normal;
+}
+
+/* ════════════════════════════════════════════════
+   SECTION DIVIDER
+════════════════════════════════════════════════ */
+.divider{
+  display:flex;align-items:center;gap:1rem;
+  margin:2.5rem 0 1.5rem;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--rule);}
+.divider span{
+  font-family:'DM Mono',monospace;font-size:.65rem;
+  color:var(--muted);letter-spacing:.2em;text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* ════════════════════════════════════════════════
+   ANTES / DEPOIS — WRAPPER PADRÃO
+════════════════════════════════════════════════ */
+.compare{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:1px solid var(--rule);
+  margin:1.5rem 0;
+  background:#fff;
+  overflow:hidden;
+}
+.compare-panel{padding:1.5rem;border-right:1px solid var(--rule);}
+.compare-panel:last-child{border-right:none;}
+.panel-label{
+  font-family:'DM Mono',monospace;font-size:.65rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:1.2rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.lbl-bad{
+  background:#e74c3c;color:#fff;
+  padding:2px 7px;border-radius:2px;font-size:.6rem;
+}
+.lbl-good{
+  background:#27ae60;color:#fff;
+  padding:2px 7px;border-radius:2px;font-size:.6rem;
+}
+.panel-note{
+  font-size:.78rem;color:var(--muted);
+  border-top:1px dashed var(--rule);
+  margin-top:1rem;padding-top:.8rem;
+  line-height:1.55;font-style:italic;
+}
+
+@media(max-width:600px){
+  .compare{grid-template-columns:1fr;}
+  .compare-panel{border-right:none;border-bottom:1px solid var(--rule);}
+  .compare-panel:last-child{border-bottom:none;}
+}
+
+/* ════════════════════════════════════════════════
+   CARDS GRID (propósitos, elementos, etc.)
+════════════════════════════════════════════════ */
+.cards-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1.2rem;margin:1.5rem 0;
+}
+.card{
+  border:1px solid var(--rule);padding:1.4rem;
+  position:relative;
+  transition:transform .2s,box-shadow .2s;
+}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.07);}
+.card::after{
+  content:'';position:absolute;
+  top:0;left:0;width:3px;height:100%;
+}
+.card-num{
+  font-family:'Playfair Display',serif;
+  font-size:2.2rem;font-weight:900;
+  color:rgba(0,0,0,.07);line-height:1;
+  margin-bottom:-.2rem;
+}
+.card h4{
+  font-family:'Playfair Display',serif;
+  font-size:.95rem;font-weight:700;
+  margin-bottom:.3rem;
+}
+.card p{font-size:.82rem;color:var(--muted);line-height:1.55;margin:0;}
+@media(max-width:640px){.cards-grid{grid-template-columns:1fr;}}
+
+/* ════════════════════════════════════════════════
+   CHECKLIST
+════════════════════════════════════════════════ */
+.checklist{list-style:none;margin:1rem 0;}
+.checklist li{
+  display:flex;align-items:flex-start;gap:.8rem;
+  padding:.55rem 0;border-bottom:1px solid var(--rule);
+  font-size:.9rem;
+}
+.checklist li:last-child{border-bottom:none;}
+.cl-arrow{font-weight:700;flex-shrink:0;margin-top:.05rem;}
+
+/* ════════════════════════════════════════════════
+   ATIVIDADE
+════════════════════════════════════════════════ */
+.activity{
+  border:2px solid var(--ink);
+  padding:2rem;margin:2rem 0;position:relative;
+}
+.activity::before{
+  content:'ATIVIDADE PRÁTICA';
+  position:absolute;top:-.65rem;left:1.5rem;
+  background:var(--paper);padding:0 .5rem;
+  font-family:'DM Mono',monospace;font-size:.62rem;
+  letter-spacing:.2em;color:var(--muted);text-transform:uppercase;
+}
+.activity-steps{counter-reset:steps;list-style:none;margin-top:.8rem;}
+.activity-steps li{
+  counter-increment:steps;
+  display:flex;gap:1rem;
+  padding:.5rem 0;
+  border-bottom:1px dashed var(--rule);
+  font-size:.88rem;
+}
+.activity-steps li::before{
+  content:counter(steps,decimal-leading-zero);
+  font-family:'DM Mono',monospace;font-size:.78rem;
+  flex-shrink:0;margin-top:.1rem;
+}
+
+/* ════════════════════════════════════════════════
+   PULLQUOTE
+════════════════════════════════════════════════ */
+.pullquote{
+  border-left:4px solid;
+  padding:1rem 1.5rem;
+  margin:2rem 0;
+}
+.pullquote p{
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem;font-style:italic;
+  color:#1a1814;margin-bottom:.3rem;
+}
+.pullquote cite{
+  font-family:'DM Mono',monospace;
+  font-size:.67rem;letter-spacing:.1em;
+  color:var(--muted);font-style:normal;
+}
+
+/* ════════════════════════════════════════════════
+   ACCORDION
+════════════════════════════════════════════════ */
+.accordion{border:1px solid var(--rule);margin:1.5rem 0;}
+.acc-item{border-bottom:1px solid var(--rule);}
+.acc-item:last-child{border-bottom:none;}
+.acc-trigger{
+  width:100%;background:none;border:none;
+  padding:1rem 1.5rem;text-align:left;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:'Lato',sans-serif;font-size:.88rem;font-weight:700;
+  color:var(--ink);transition:background .15s;
+}
+.acc-trigger:hover{background:rgba(0,0,0,.02);}
+.acc-arrow{
+  font-family:'DM Mono',monospace;font-size:.65rem;
+  flex-shrink:0;transition:transform .2s;
+}
+.acc-trigger.open .acc-arrow{transform:rotate(180deg);}
+.acc-body{
+  display:none;padding:0 1.5rem 1.2rem;
+  font-size:.87rem;color:var(--muted);line-height:1.7;
+}
+.acc-body.open{display:block;}
+
+/* ════════════════════════════════════════════════
+   SÍNTESE FINAL
+════════════════════════════════════════════════ */
+.final-synthesis{
+  background:var(--ink);color:var(--paper);
+  padding:4rem;margin-top:4rem;
+}
+.final-synthesis h2{
+  font-family:'Playfair Display',serif;
+  font-size:2rem;font-weight:900;
+  margin-bottom:1.5rem;
+}
+.synth-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:1.5rem;margin-top:2rem;
+}
+.synth-card{
+  border:1px solid rgba(255,255,255,.12);
+  padding:1.5rem;
+}
+.synth-card h3{
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem;font-weight:700;
+  margin-bottom:.5rem;
+}
+.synth-card p{
+  font-size:.85rem;color:#bbb;
+  line-height:1.6;margin:0;
+}
+.synth-card .sc-letter{
+  font-family:'Playfair Display',serif;
+  font-size:3rem;font-weight:900;
+  line-height:1;margin-bottom:.3rem;
+}
+.tag-cloud{
+  display:flex;flex-wrap:wrap;gap:.5rem;
+  margin-top:2rem;
+}
+.tag-cloud span{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);
+  padding:.28rem .8rem;
+  font-family:'DM Mono',monospace;
+  font-size:.67rem;letter-spacing:.1em;text-transform:uppercase;
+  color:#ddd;
+}
+@media(max-width:640px){
+  .synth-grid{grid-template-columns:1fr;}
+  .final-synthesis{padding:2rem 1.5rem;}
+}
+
+/* ════════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════════ */
+footer{
+  background:#0a0908;color:var(--muted);
+  padding:2rem 4rem;
+  font-family:'DM Mono',monospace;font-size:.68rem;
+  letter-spacing:.1em;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:.8rem;
+}
+
+/* ════════════════════════════════════════════════
+   UTILIDADES INLINE
+════════════════════════════════════════════════ */
+h2.sec-h{
+  font-family:'Playfair Display',serif;
+  font-size:1.55rem;font-weight:700;
+  margin:2rem 0 .6rem;
+}
+h3.sec-h3{
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem;font-weight:700;
+  margin:1.4rem 0 .4rem;
+}
+
+/* ════════════════════════════════════════════════
+   CORES POR PRINCÍPIO (aplicadas via class)
+════════════════════════════════════════════════ */
+.p-contrast  .ch-eyebrow,.p-contrast  .cl-arrow{color:var(--c-contrast);}
+.p-contrast  .ch-accent,.p-contrast .card::after{background:var(--c-contrast);}
+.p-contrast  .def-box,.p-contrast  .pullquote{border-color:var(--c-contrast);}
+.p-contrast  .activity::before{color:var(--c-contrast);}
+.p-contrast  .activity-steps li::before{color:var(--c-contrast);}
+
+.p-rep .ch-eyebrow,.p-rep .cl-arrow{color:var(--c-rep);}
+.p-rep .ch-accent,.p-rep .card::after{background:var(--c-rep);}
+.p-rep .def-box,.p-rep .pullquote{border-color:var(--c-rep);}
+.p-rep .activity::before{color:var(--c-rep);}
+.p-rep .activity-steps li::before{color:var(--c-rep);}
+
+.p-align .ch-eyebrow,.p-align .cl-arrow{color:var(--c-align);}
+.p-align .ch-accent,.p-align .card::after{background:var(--c-align);}
+.p-align .def-box,.p-align .pullquote{border-color:var(--c-align);}
+.p-align .activity::before{color:var(--c-align);}
+.p-align .activity-steps li::before{color:var(--c-align);}
+
+.p-prox .ch-eyebrow,.p-prox .cl-arrow{color:var(--c-prox);}
+.p-prox .ch-accent,.p-prox .card::after{background:var(--c-prox);}
+.p-prox .def-box,.p-prox .pullquote{border-color:var(--c-prox);}
+.p-prox .activity::before{color:var(--c-prox);}
+.p-prox .activity-steps li::before{color:var(--c-prox);}
+
+/* ════════════════════════════════════════════════
+   DEMOS ESPECÍFICOS — CONTRASTE
+════════════════════════════════════════════════ */
+/* demo 1: título sem/com contraste */
+.ct-bad-title{font-size:14px;font-weight:400;color:#555;font-family:Arial;margin-bottom:6px;}
+.ct-bad-body{font-size:13px;color:#666;font-family:Arial;line-height:1.6;}
+.ct-bad-sub{font-size:13px;font-weight:400;color:#777;font-family:Arial;margin:8px 0 4px;}
+
+.ct-good-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:#0f0e0c;margin-bottom:4px;line-height:1.1;}
+.ct-good-body{font-size:.82rem;color:#555;line-height:1.65;font-family:'Lato',sans-serif;}
+.ct-good-sub{font-family:'Lato',sans-serif;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--c-contrast);margin:12px 0 4px;}
+
+/* demo 2: cartão de evento */
+.ev-bad{font-family:Arial;font-size:12px;color:#555;padding:10px;border:1px solid #ccc;line-height:2;}
+.ev-bad *{font-size:12px;color:#555;font-weight:400;}
+
+.ev-good{font-family:'Lato',sans-serif;padding:12px 14px;background:#fff;border:1px solid #e0e0e0;}
+.ev-good .ev-date{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-contrast);margin-bottom:4px;}
+.ev-good .ev-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;color:#0f0e0c;line-height:1.1;margin-bottom:6px;}
+.ev-good .ev-local{font-size:.78rem;color:#888;}
+.ev-good .ev-btn{display:inline-block;background:var(--c-contrast);color:#fff;font-size:.65rem;padding:4px 10px;letter-spacing:.12em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-top:8px;}
+
+/* demo 3: botões */
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0;}
+.btn-bad-1{background:#ddd;color:#999;border:1px solid #ccc;padding:6px 14px;font-size:12px;border-radius:4px;font-family:Arial;}
+.btn-bad-2{background:#eee;color:#aaa;border:1px solid #ddd;padding:6px 14px;font-size:12px;border-radius:4px;font-family:Arial;}
+.btn-bad-3{background:#e5e5e5;color:#bbb;border:1px solid #ccc;padding:6px 14px;font-size:12px;border-radius:4px;font-family:Arial;}
+.btn-good-p{background:var(--c-contrast);color:#fff;border:none;padding:7px 16px;font-size:.7rem;font-weight:700;font-family:'Lato',sans-serif;letter-spacing:.06em;cursor:pointer;}
+.btn-good-s{background:transparent;color:var(--c-contrast);border:2px solid var(--c-contrast);padding:5px 14px;font-size:.7rem;font-weight:700;font-family:'Lato',sans-serif;letter-spacing:.06em;cursor:pointer;}
+.btn-good-t{background:transparent;color:#888;border:none;padding:7px 12px;font-size:.7rem;font-family:'Lato',sans-serif;text-decoration:underline;cursor:pointer;}
+
+/* demo 4: cores sem/com contraste */
+.color-swatches{display:flex;gap:6px;flex-wrap:wrap;}
+.swatch{width:46px;height:46px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;}
+
+/* ════════════════════════════════════════════════
+   DEMOS — REPETIÇÃO
+════════════════════════════════════════════════ */
+/* lista de notícias sem rep */
+.nr-bad-item{margin-bottom:10px;padding-bottom:10px;}
+.nr-bad-item:nth-child(1){font-family:Georgia;font-size:14px;border-bottom:2px solid #333;color:#222;}
+.nr-bad-item:nth-child(2){font-family:Arial;font-size:13px;border-bottom:1px dotted #999;color:#555;}
+.nr-bad-item:nth-child(3){font-family:Courier;font-size:15px;border-bottom:3px double #000;color:#111;}
+
+/* lista de notícias com rep */
+.nr-good-item{
+  margin-bottom:0;padding:9px 0 9px 12px;
+  border-bottom:1px solid #e5e5e5;
+  border-left:3px solid var(--c-rep);
+  font-family:'Lato',sans-serif;
+}
+.nr-good-item .nr-cat{
+  font-family:'DM Mono',monospace;font-size:.58rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--c-rep);display:block;margin-bottom:2px;
+}
+.nr-good-item .nr-title{font-size:.85rem;font-weight:700;color:#0f0e0c;line-height:1.3;}
+
+/* slides sem rep */
+.slide-bad{border:1px solid #ddd;padding:12px;margin-bottom:8px;font-family:Arial;font-size:12px;}
+.slide-bad:nth-child(1){background:#fffde7;border-color:#f9a825;}
+.slide-bad:nth-child(2){background:#e8f5e9;border-color:#388e3c;}
+.slide-bad:nth-child(3){background:#fce4ec;border-color:#c2185b;}
+
+/* slides com rep */
+.slide-good{
+  padding:10px 14px;margin-bottom:6px;
+  background:#fff;
+  border-left:4px solid var(--c-rep);
+  display:flex;align-items:center;gap:10px;
+  font-family:'Lato',sans-serif;
+}
+.slide-good .sg-num{
+  font-family:'DM Mono',monospace;font-size:.65rem;
+  color:var(--c-rep);flex-shrink:0;font-weight:500;
+}
+.slide-good .sg-text{font-size:.82rem;font-weight:700;color:#0f0e0c;}
+
+/* ════════════════════════════════════════════════
+   DEMOS — ALINHAMENTO
+════════════════════════════════════════════════ */
+/* cartão bio sem alinhamento */
+.bio-bad{font-family:Arial;font-size:12px;color:#555;line-height:1.9;text-align:center;}
+.bio-bad .bb-name{font-size:16px;font-weight:bold;text-align:left;display:block;}
+.bio-bad .bb-role{font-size:11px;text-align:right;display:block;color:#999;}
+.bio-bad .bb-desc{text-align:justify;font-size:12px;margin-top:6px;}
+.bio-bad .bb-btn{display:block;text-align:center;background:#aaa;color:#fff;padding:4px;margin-top:6px;font-size:11px;}
+
+/* cartão bio com alinhamento */
+.bio-good{font-family:'Lato',sans-serif;padding:4px 0;}
+.bio-good .bg-role{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-align);margin-bottom:3px;}
+.bio-good .bg-name{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:#0f0e0c;margin-bottom:6px;}
+.bio-good .bg-desc{font-size:.8rem;color:#666;line-height:1.6;margin-bottom:8px;}
+.bio-good .bg-btn{display:inline-block;border:2px solid var(--c-align);color:var(--c-align);padding:4px 12px;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+
+/* texto centralizado ruim */
+.centered-bad{text-align:center;font-family:Georgia;font-size:13px;color:#555;line-height:2;}
+.centered-bad h3{font-size:14px;font-weight:bold;}
+
+/* texto alinhado bom */
+.aligned-good{font-family:'Lato',sans-serif;}
+.aligned-good h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;margin-bottom:6px;}
+.aligned-good p{font-size:.8rem;color:#555;line-height:1.65;margin:0;}
+.aligned-good .ag-rule{width:2rem;height:2px;background:var(--c-align);margin-bottom:8px;}
+
+/* grid itens mal alinhados */
+.grid-bad{display:flex;flex-wrap:wrap;gap:4px;}
+.grid-bad-item{padding:8px;font-size:11px;font-family:Arial;}
+.grid-bad-item:nth-child(1){background:#f0f0f0;width:60%;text-align:center;}
+.grid-bad-item:nth-child(2){background:#e0e0e0;width:35%;text-align:right;}
+.grid-bad-item:nth-child(3){background:#d0d0d0;width:45%;text-align:left;}
+.grid-bad-item:nth-child(4){background:#c0c0c0;width:50%;text-align:center;}
+
+.grid-good{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#ddd;}
+.grid-good-item{
+  background:#fff;padding:10px 12px;
+  font-family:'Lato',sans-serif;font-size:.78rem;
+  border-left:3px solid var(--c-align);
+}
+.grid-good-item .ggi-label{
+  font-family:'DM Mono',monospace;font-size:.58rem;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--c-align);margin-bottom:3px;
+}
+.grid-good-item .ggi-val{font-weight:700;font-size:.9rem;color:#0f0e0c;}
+
+/* ════════════════════════════════════════════════
+   DEMOS — PROXIMIDADE
+════════════════════════════════════════════════ */
+/* formulário sem proximidade */
+.form-bad{font-family:Arial;font-size:12px;color:#555;}
+.form-bad label{display:block;margin:10px 0 10px;}
+.form-bad input-fake{display:block;border:1px solid #ccc;padding:5px;width:100%;margin:10px 0;}
+.fb-label{display:block;padding:6px 0;}
+.fb-input{display:block;border:1px solid #bbb;padding:5px 8px;width:100%;background:#fafafa;margin-bottom:2px;font-size:12px;}
+
+/* formulário com proximidade */
+.form-good{font-family:'Lato',sans-serif;}
+.fg-group{margin-bottom:16px;}
+.fg-label{
+  display:block;font-size:.68rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--c-prox);margin-bottom:4px;
+}
+.fg-input{
+  display:block;border:1.5px solid #ddd;
+  padding:7px 10px;width:100%;
+  font-size:.82rem;color:#333;background:#fff;
+}
+.fg-hint{font-size:.7rem;color:#aaa;margin-top:3px;}
+
+/* card de produto sem prox */
+.prod-bad{font-family:Arial;font-size:12px;border:1px solid #ddd;padding:10px;}
+.prod-bad *{margin:6px 0;}
+
+/* card de produto com prox */
+.prod-good{font-family:'Lato',sans-serif;border:1px solid #eee;overflow:hidden;}
+.pg-img{height:80px;background:linear-gradient(135deg,#e8d5f0,#c8a8e0);display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.pg-body{padding:12px;}
+.pg-meta{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--c-prox);margin-bottom:3px;}
+.pg-name{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:#0f0e0c;margin-bottom:2px;}
+.pg-desc{font-size:.75rem;color:#888;line-height:1.5;margin-bottom:10px;}
+.pg-price-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #eee;padding-top:8px;}
+.pg-price{font-weight:900;font-size:1rem;color:#0f0e0c;}
+.pg-btn{background:var(--c-prox);color:#fff;font-size:.62rem;padding:4px 10px;font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;}
+
+/* menu sem/com proximidade */
+.menu-bad{font-family:Arial;font-size:12px;line-height:2.8;}
+.menu-bad a{color:#333;display:block;}
+
+.menu-good{font-family:'Lato',sans-serif;}
+.mg-group{margin-bottom:12px;}
+.mg-group-title{
+  font-family:'DM Mono',monospace;font-size:.58rem;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--c-prox);margin-bottom:4px;
+  padding-bottom:3px;border-bottom:1px solid #ddd;
+}
+.mg-group a{display:block;font-size:.8rem;color:#444;padding:2px 0;text-decoration:none;}
+.mg-group a:hover{color:var(--c-prox);}
+
+/* ════════════════════════════════════════════════
+   TABELA COMPARATIVA FINAL
+════════════════════════════════════════════════ */
+.comp-table{width:100%;border-collapse:collapse;margin:2rem 0;font-size:.82rem;}
+.comp-table th{
+  text-align:left;padding:.8rem 1rem;
+  background:var(--ink);color:var(--paper);
+  font-family:'DM Mono',monospace;font-size:.65rem;
+  letter-spacing:.12em;text-transform:uppercase;
+}
+.comp-table td{
+  padding:.75rem 1rem;
+  border-bottom:1px solid var(--rule);
+  vertical-align:top;line-height:1.55;
+}
+.comp-table tr:hover td{background:rgba(0,0,0,.02);}
+.ct-letter{
+  font-family:'Playfair Display',serif;
+  font-size:1.4rem;font-weight:900;
+  display:inline-block;width:2rem;
+}
+
+/* scroll animations */
+.reveal{
+  opacity:0;transform:translateY(16px);
+  transition:opacity .55s ease,transform .55s ease;
+}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HERO ═══════════ -->
+<header class="hero">
+  <div class="hero-bg">C.R.A.P</div>
+  <p class="hero-eyebrow">The Non-Designer's Design Book · Robin Williams · Material Completo</p>
+  <h1>Os 4 Princípios<br><em>Fundamentais</em><br>do Design</h1>
+  <p class="hero-sub">Contraste · Repetição · Alinhamento · Proximidade — o framework C.R.A.P. que transforma leigos em designers conscientes.</p>
+  <div class="crap-badges">
+    <a href="#contraste" class="crap-badge cb-c">C — Contraste</a>
+    <a href="#repeticao" class="crap-badge cb-r">R — Repetição</a>
+    <a href="#alinhamento" class="crap-badge cb-a">A — Alinhamento</a>
+    <a href="#proximidade" class="crap-badge cb-p">P — Proximidade</a>
+  </div>
+</header>
+
+<!-- ═══════════ NAV STICKY ═══════════ -->
+<nav class="nav-sticky">
+  <a href="#contraste"   class="nav-tab nt-c">C · Contraste</a>
+  <a href="#repeticao"   class="nav-tab nt-r">R · Repetição</a>
+  <a href="#alinhamento" class="nav-tab nt-a">A · Alinhamento</a>
+  <a href="#proximidade" class="nav-tab nt-p">P · Proximidade</a>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════
+     1. CONTRASTE
+══════════════════════════════════════════════ -->
+<section id="contraste" class="p-contrast">
+<div class="container">
+
+  <div class="chapter reveal">
+    <p class="ch-eyebrow">Princípio 01 · C.R.A.P.</p>
+    <h1 class="ch-title">Contraste</h1>
+    <div class="ch-accent"></div>
+    <p class="ch-lead">Se dois elementos <em>não são iguais</em>, torne-os <em>muito diferentes</em>. O contraste é frequentemente o elemento visual mais forte de uma página — é ele que faz o olho entrar e circuler pela peça.</p>
+  </div>
+
+  <div class="def-box reveal">
+    <p>"Se os elementos (tipo, cor, tamanho, espessura de linha, forma, espaço, etc.) não forem os mesmos, torne-os muito diferentes. Não seja tímido."</p>
+    <cite>— Robin Williams, The Non-Designer's Design Book</cite>
+  </div>
+
+  <div class="pullquote reveal">
+    <p>"Contraste tem dois propósitos, e são inseparáveis: criar interesse visual e ajudar na organização da informação."</p>
+    <cite>— Robin Williams</cite>
+  </div>
+
+  <!-- FORMAS DE CRIAR CONTRASTE -->
+  <div class="divider reveal"><span>Formas de criar contraste</span></div>
+  <div class="cards-grid reveal">
+    <div class="card"><div class="card-num">01</div><h4>Tamanho</h4><p>Um título grande ao lado de um corpo pequeno cria hierarquia imediata. A diferença precisa ser clara — não apenas alguns pontos a mais.</p></div>
+    <div class="card"><div class="card-num">02</div><h4>Peso tipográfico</h4><p>Negrito <em>forte</em> (black/heavy) contra regular fino. Evite semibold ao lado de regular — a diferença é tímida demais.</p></div>
+    <div class="card"><div class="card-num">03</div><h4>Cor</h4><p>Uma cor vibrante em campo neutro, ou claro em escuro. Evite colocar duas cores similares lado a lado sem diferença de valor.</p></div>
+    <div class="card"><div class="card-num">04</div><h4>Forma / Estrutura</h4><p>Serif com sans-serif. Geométrico com orgânico. Cheio com vazio. Opostos visuais que se complementam.</p></div>
+    <div class="card"><div class="card-num">05</div><h4>Direção</h4><p>Um elemento vertical em composição horizontal. Uma linha diagonal em layout retilíneo. Quebra o ritmo e captura o olhar.</p></div>
+    <div class="card"><div class="card-num">06</div><h4>Textura / Espaço</h4><p>Área densa de texto ao lado de espaço vazio (respiro). O branco não é ausência — é elemento ativo.</p></div>
+  </div>
+
+  <!-- DEMO 1: TIPOGRAFIA -->
+  <div class="divider reveal"><span>Demo 1 · Hierarquia tipográfica</span></div>
+  <p class="reveal">O contraste de <strong>tipo e peso</strong> é o mais fundamental. Veja o mesmo conteúdo com e sem ele:</p>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem contraste <span class="lbl-bad">✗</span></div>
+      <div class="ct-bad-title">Workshop de Tipografia</div>
+      <div class="ct-bad-sub">Quando e onde</div>
+      <div class="ct-bad-body">Sábado, 14 de junho às 10h. Sala de Design — bloco B. Este workshop aborda os fundamentos da tipografia para comunicação visual. Vagas limitadas.</div>
+      <p class="panel-note">Tudo está no mesmo peso, tamanho e cor. O olho não sabe onde começar — não há ponto de entrada.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com contraste <span class="lbl-good">✓</span></div>
+      <div class="ct-good-sub">Workshop</div>
+      <div class="ct-good-title">Tipografia</div>
+      <div class="ct-good-body" style="margin-top:8px;">Sábado, 14 de junho às 10h<br>Sala de Design — bloco B</div>
+      <div class="ct-good-body" style="margin-top:8px;color:#888;">Fundamentos da tipografia para comunicação visual. Vagas limitadas.</div>
+      <p class="panel-note">Três níveis claros: label pequeno, título grande, detalhes discretos. O olhar percorre a hierarquia naturalmente.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 2: CARTÃO DE EVENTO -->
+  <div class="divider reveal"><span>Demo 2 · Cartão de evento</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem contraste <span class="lbl-bad">✗</span></div>
+      <div class="ev-bad">
+        <div>Data: 22 de Março</div>
+        <div>Evento: Design Week São Paulo</div>
+        <div>Local: Centro Cultural</div>
+        <div>Inscrições abertas</div>
+      </div>
+      <p class="panel-note">Cada linha compete igualmente. Nenhuma informação se destaca. O evento não parece importante.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com contraste <span class="lbl-good">✓</span></div>
+      <div class="ev-good">
+        <div class="ev-date">22 de Março · Centro Cultural</div>
+        <div class="ev-name">Design Week<br>São Paulo</div>
+        <div class="ev-local">O maior evento de design do Brasil</div>
+        <div class="ev-btn">Inscrever-se</div>
+      </div>
+      <p class="panel-note">Data pequena e discreta → Nome do evento dominante → Subtítulo de suporte → CTA em bloco colorido.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 3: BOTÕES -->
+  <div class="divider reveal"><span>Demo 3 · Hierarquia de ações (botões)</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem contraste <span class="lbl-bad">✗</span></div>
+      <div class="btn-row">
+        <button class="btn-bad-1">Confirmar</button>
+        <button class="btn-bad-2">Cancelar</button>
+        <button class="btn-bad-3">Saiba mais</button>
+      </div>
+      <p class="panel-note">Três botões cinzas com pesos quase iguais. O usuário não sabe qual é a ação principal — todos parecem iguais.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com contraste <span class="lbl-good">✓</span></div>
+      <div class="btn-row">
+        <button class="btn-good-p">Confirmar</button>
+        <button class="btn-good-s">Cancelar</button>
+        <button class="btn-good-t">Saiba mais</button>
+      </div>
+      <p class="panel-note">Primário sólido → Secundário com borda → Terciário link discreto. Três níveis de importância claramente distintos.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 4: COR -->
+  <div class="divider reveal"><span>Demo 4 · Contraste de cor</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem contraste (cores similares) <span class="lbl-bad">✗</span></div>
+      <div class="color-swatches">
+        <div class="swatch" style="background:#5b8fa8;"></div>
+        <div class="swatch" style="background:#6a9db5;"></div>
+        <div class="swatch" style="background:#79adc2;"></div>
+        <div class="swatch" style="background:#88bbcf;"></div>
+        <div class="swatch" style="background:#97c9dc;"></div>
+      </div>
+      <p class="panel-note">Cores análogas sem variação de valor. A paleta é plana — nenhuma cor cria destaque ou ponto focal.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com contraste (valor e saturação) <span class="lbl-good">✓</span></div>
+      <div class="color-swatches">
+        <div class="swatch" style="background:#0f0e0c;color:#fff;font-size:.55rem;font-family:monospace;">Base</div>
+        <div class="swatch" style="background:#f5f1e8;border:1px solid #ddd;font-size:.55rem;font-family:monospace;color:#999;">Fundo</div>
+        <div class="swatch" style="background:#c0392b;color:#fff;font-size:.55rem;font-family:monospace;">Acento</div>
+        <div class="swatch" style="background:#d4ccbc;font-size:.55rem;font-family:monospace;color:#666;">Suave</div>
+        <div class="swatch" style="background:#e8d5a3;font-size:.55rem;font-family:monospace;color:#666;">Quente</div>
+      </div>
+      <p class="panel-note">Neutros dominantes + um acento vibrante. O vermelho aparece pouco, mas onde aparece, domina e orienta o olhar.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 5: TIPOGRAFIA COMBINADA -->
+  <div class="divider reveal"><span>Demo 5 · Combinação de famílias tipográficas</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem contraste (fontes parecidas) <span class="lbl-bad">✗</span></div>
+      <div style="font-family:Arial;font-size:13px;line-height:1.9;color:#555;">
+        <div style="font-family:Helvetica;font-size:15px;font-weight:600;color:#444;">Guia de Estilo</div>
+        <div style="font-family:Arial;font-size:13px;color:#666;">Tipografia e comunicação visual</div>
+        <div style="font-family:'Trebuchet MS';font-size:12px;color:#777;margin-top:4px;">Este guia aborda os conceitos fundamentais da tipografia aplicada ao design editorial e digital.</div>
+      </div>
+      <p class="panel-note">Três sans-serifs semelhantes (Arial, Helvetica, Trebuchet). A diferença é imperceptível — não há personalidade.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com contraste (serif + mono + sans) <span class="lbl-good">✓</span></div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c-contrast);margin-bottom:3px;">Editorial</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:#0f0e0c;line-height:1.1;">Guia de Estilo</div>
+        <div style="font-family:'Lato',sans-serif;font-size:.78rem;font-style:italic;color:#888;margin:4px 0 6px;">Tipografia e comunicação visual</div>
+        <div style="font-family:'Lato',sans-serif;font-size:.8rem;color:#555;line-height:1.65;">Este guia aborda os fundamentos da tipografia aplicada ao design editorial e digital.</div>
+      </div>
+      <p class="panel-note">Mono (categoria/label) + Serif (título display) + Sans (corpo). Três papéis distintos, três personalidades que se complementam.</p>
+    </div>
+  </div>
+
+  <!-- ATIVIDADE -->
+  <div class="divider reveal"><span>Atividade prática</span></div>
+  <div class="activity reveal">
+    <p style="font-size:.9rem;margin-bottom:.5rem;"><strong>Objetivo:</strong> Aplicar contraste deliberado em um layout simples.</p>
+    <ol class="activity-steps">
+      <li>Pegue um flyer, cartão ou post de redes sociais que você considera "apagado".</li>
+      <li>Liste todos os elementos textuais e visuais presentes.</li>
+      <li>Decida qual é a informação mais importante — ela precisa dominar visualmente.</li>
+      <li>Aumente o título para pelo menos 3× o tamanho do corpo de texto.</li>
+      <li>Introduza <em>uma</em> cor forte. Aplique-a apenas ao elemento principal.</li>
+      <li>Reduza o peso de pelo menos dois elementos secundários (use versão light ou diminua o tamanho).</li>
+      <li>Compare: o olhar vai diretamente para o que importa?</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     2. REPETIÇÃO
+══════════════════════════════════════════════ -->
+<section id="repeticao" class="p-rep" style="background:rgba(26,82,118,.04);padding-bottom:3rem;">
+<div class="container">
+
+  <div class="chapter reveal">
+    <p class="ch-eyebrow">Princípio 02 · C.R.A.P.</p>
+    <h1 class="ch-title">Repetição</h1>
+    <div class="ch-accent"></div>
+    <p class="ch-lead">Repita algum aspecto do design ao longo de toda a peça. O elemento visual pode ser uma fonte em negrito, uma linha grossa, uma cor, um formato — qualquer coisa que o leitor possa <em>reconhecer e antecipar</em>.</p>
+  </div>
+
+  <div class="def-box reveal">
+    <p>"A ideia de repetição é fazer o leitor entender que há uma ligação entre os elementos — que eles fazem parte do mesmo sistema."</p>
+    <cite>— Robin Williams, The Non-Designer's Design Book</cite>
+  </div>
+
+  <div class="pullquote reveal">
+    <p>"A repetição une peças separadas de design e cria consistência em um único documento com várias páginas."</p>
+    <cite>— Robin Williams</cite>
+  </div>
+
+  <!-- O QUE PODE SER REPETIDO -->
+  <div class="divider reveal"><span>O que pode ser repetido</span></div>
+  <ul class="checklist reveal">
+    <li><span class="cl-arrow">→</span><span><strong>Família tipográfica:</strong> o mesmo estilo de título em cada seção — mesma fonte, mesmo peso, mesmo tamanho.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Cor de destaque:</strong> uma cor específica que aparece em cabeçalhos, ícones, linhas decorativas e rótulos.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Espessura de linha:</strong> bordas, divisores e ornamentos com a mesma espessura em toda a peça.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Forma de ícone:</strong> todos os ícones lineares (ou todos preenchidos) — nunca uma mistura aleatória.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Espaçamento e margens:</strong> o mesmo recuo interno em todos os cartões e painéis.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Estilo de imagem:</strong> todas as fotos em preto e branco, ou todas com o mesmo enquadramento.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Elemento gráfico:</strong> um ornamento, uma seta ou um padrão que aparece em pontos estratégicos.</span></li>
+  </ul>
+
+  <!-- DEMO 1: LISTA DE NOTÍCIAS -->
+  <div class="divider reveal"><span>Demo 1 · Lista de notícias / itens</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem repetição <span class="lbl-bad">✗</span></div>
+      <div>
+        <div class="nr-bad-item">☕ Design de Produto — o estado da arte em 2025</div>
+        <div class="nr-bad-item">★ Tipografia que convence e converte</div>
+        <div class="nr-bad-item">• Por que a Teoria das Cores ainda importa</div>
+      </div>
+      <p class="panel-note">Cada item tem fonte, separador e ícone diferentes. O conjunto parece três peças distintas coladas juntas.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com repetição <span class="lbl-good">✓</span></div>
+      <div>
+        <div class="nr-good-item"><span class="nr-cat">Produto</span><span class="nr-title">Design de Produto — o estado da arte em 2025</span></div>
+        <div class="nr-good-item"><span class="nr-cat">Tipografia</span><span class="nr-title">Tipografia que convence e converte</span></div>
+        <div class="nr-good-item"><span class="nr-cat">Cor</span><span class="nr-title">Por que a Teoria das Cores ainda importa</span></div>
+      </div>
+      <p class="panel-note">Borda esquerda azul + rótulo em mono + título em negrito. O sistema é o mesmo nos três — o leitor aprende uma vez e navega com facilidade.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 2: SLIDES DE APRESENTAÇÃO -->
+  <div class="divider reveal"><span>Demo 2 · Slides de apresentação</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem repetição <span class="lbl-bad">✗</span></div>
+      <div>
+        <div class="slide-bad">🎨 Slide 1: Introdução ao Design</div>
+        <div class="slide-bad">📐 Slide 2 — Os Princípios Fundamentais</div>
+        <div class="slide-bad">✏️ Slide 3 · Aplicação Prática</div>
+      </div>
+      <p class="panel-note">Três slides com cores de fundo, bordas e formatação diferentes. Parece três apresentações distintas — não uma coesa.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com repetição <span class="lbl-good">✓</span></div>
+      <div>
+        <div class="slide-good"><span class="sg-num">01 /</span><span class="sg-text">Introdução ao Design</span></div>
+        <div class="slide-good"><span class="sg-num">02 /</span><span class="sg-text">Os Princípios Fundamentais</span></div>
+        <div class="slide-good"><span class="sg-num">03 /</span><span class="sg-text">Aplicação Prática</span></div>
+      </div>
+      <p class="panel-note">Número em mono azul + borda esquerda fixa + mesmo fundo branco. O padrão se repete: é uma série, não uma coleção aleatória.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 3: CABEÇALHOS DE SEÇÃO -->
+  <div class="divider reveal"><span>Demo 3 · Cabeçalhos de seção em documento</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem repetição <span class="lbl-bad">✗</span></div>
+      <div style="font-family:Arial;font-size:12px;color:#555;">
+        <div style="font-size:16px;font-weight:bold;color:#c00;text-decoration:underline;margin-bottom:6px;">1. Introdução</div>
+        <div style="font-size:12px;color:#555;margin-bottom:10px;">Texto da seção de introdução aqui...</div>
+        <div style="font-family:Georgia;font-size:14px;font-style:italic;color:#333;border-bottom:2px solid #999;margin-bottom:6px;">2 — Metodologia</div>
+        <div style="font-size:12px;color:#555;margin-bottom:10px;">Texto da seção de metodologia aqui...</div>
+        <div style="background:#eee;padding:4px 8px;font-size:13px;font-weight:bold;display:inline-block;margin-bottom:6px;">SEÇÃO 3: Resultados</div>
+        <div style="font-size:12px;color:#555;">Texto da seção de resultados aqui...</div>
+      </div>
+      <p class="panel-note">Três estilos de título completamente diferentes — sublinhado vermelho, itálico com borda, caixa cinza. Parece recortado de três documentos.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com repetição <span class="lbl-good">✓</span></div>
+      <div style="font-family:'Lato',sans-serif;font-size:12px;">
+        <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c-rep);margin-bottom:2px;">01</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;color:#0f0e0c;margin-bottom:6px;padding-bottom:6px;border-bottom:2px solid var(--c-rep);">Introdução</div>
+        <div style="font-size:.78rem;color:#666;margin-bottom:12px;">Texto da seção de introdução aqui...</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c-rep);margin-bottom:2px;">02</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;color:#0f0e0c;margin-bottom:6px;padding-bottom:6px;border-bottom:2px solid var(--c-rep);">Metodologia</div>
+        <div style="font-size:.78rem;color:#666;margin-bottom:12px;">Texto da seção de metodologia aqui...</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--c-rep);margin-bottom:2px;">03</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;color:#0f0e0c;padding-bottom:6px;border-bottom:2px solid var(--c-rep);">Resultados</div>
+        <div style="font-size:.78rem;color:#666;margin-top:6px;">Texto da seção de resultados aqui...</div>
+      </div>
+      <p class="panel-note">Número mono azul + título serif negrito + linha azul. O sistema é idêntico em cada seção — o leitor navega com confiança.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 4: CARTÕES DE PERFIL -->
+  <div class="divider reveal"><span>Demo 4 · Cartões de perfil/equipe</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem repetição <span class="lbl-bad">✗</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-family:Georgia;font-size:13px;padding:8px;background:#f5f5f5;border-radius:6px;">
+          <strong>Ana Lima</strong> — Designer Sênior<br><span style="font-size:11px;color:#999;">3 anos de empresa</span>
+        </div>
+        <div style="font-family:Arial;font-size:11px;padding:8px;border:2px dashed navy;color:navy;">
+          <em>Carlos Mota</em><br>UX Researcher · 1 ano
+        </div>
+        <div style="font-family:Courier;font-size:12px;padding:8px;background:#fffde7;">
+          JULIA ROCHA<br>Motion Designer<br>2 ANOS
+        </div>
+      </div>
+      <p class="panel-note">Cada perfil tem fonte, fundo, borda e estilo diferentes. Não parecem a mesma equipe.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com repetição <span class="lbl-good">✓</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-family:'Lato',sans-serif;padding:10px 12px;border-left:3px solid var(--c-rep);background:#fff;">
+          <span style="font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--c-rep);display:block;">Designer Sênior · 3 anos</span>
+          <span style="font-size:.85rem;font-weight:700;color:#0f0e0c;">Ana Lima</span>
+        </div>
+        <div style="font-family:'Lato',sans-serif;padding:10px 12px;border-left:3px solid var(--c-rep);background:#fff;">
+          <span style="font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--c-rep);display:block;">UX Researcher · 1 ano</span>
+          <span style="font-size:.85rem;font-weight:700;color:#0f0e0c;">Carlos Mota</span>
+        </div>
+        <div style="font-family:'Lato',sans-serif;padding:10px 12px;border-left:3px solid var(--c-rep);background:#fff;">
+          <span style="font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--c-rep);display:block;">Motion Designer · 2 anos</span>
+          <span style="font-size:.85rem;font-weight:700;color:#0f0e0c;">Julia Rocha</span>
+        </div>
+      </div>
+      <p class="panel-note">Borda azul + rótulo mono + nome negrito — o mesmo padrão nas três. Pertencem ao mesmo sistema visual.</p>
+    </div>
+  </div>
+
+  <!-- ATIVIDADE -->
+  <div class="divider reveal"><span>Atividade prática</span></div>
+  <div class="activity reveal">
+    <p style="font-size:.9rem;margin-bottom:.5rem;"><strong>Objetivo:</strong> Construir um sistema de repetição consciente.</p>
+    <ol class="activity-steps">
+      <li>Abra uma apresentação ou documento com 3+ seções ou slides.</li>
+      <li>Liste quantos estilos de título diferentes existem — um por slide conta como estilo diferente se não for idêntico.</li>
+      <li>Escolha um único estilo para todos os títulos de mesmo nível e aplique.</li>
+      <li>Escolha <em>um</em> elemento decorativo (cor de linha, ícone, ornamento) e insira-o de forma consistente em todas as seções.</li>
+      <li>Se houver imagens, padronize o tratamento (todas PB, todas coloridas, todas com o mesmo enquadramento).</li>
+      <li>Resultado: o documento parece uma peça única? Peça a um colega para confirmar.</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     3. ALINHAMENTO
+══════════════════════════════════════════════ -->
+<section id="alinhamento" class="p-align" style="padding-bottom:3rem;">
+<div class="container">
+
+  <div class="chapter reveal">
+    <p class="ch-eyebrow">Princípio 03 · C.R.A.P.</p>
+    <h1 class="ch-title">Alinhamento</h1>
+    <div class="ch-accent"></div>
+    <p class="ch-lead">Nenhum elemento deve ser colocado na página de forma arbitrária. Todo item deve ter uma <em>conexão visual</em> com alguma coisa na página. Isso cria uma aparência limpa, sofisticada e organizada.</p>
+  </div>
+
+  <div class="def-box reveal">
+    <p>"A força de uma linha de alinhamento à esquerda é que ela cria uma borda visual forte do lado esquerdo da página. O olho sabe sempre onde encontrar o início da próxima linha."</p>
+    <cite>— Robin Williams, The Non-Designer's Design Book</cite>
+  </div>
+
+  <div class="pullquote reveal">
+    <p>"Mesmo que os elementos alinhados estejam fisicamente separados na página, há uma linha invisível que os conecta, tanto para os olhos quanto para a mente."</p>
+    <cite>— Robin Williams</cite>
+  </div>
+
+  <!-- TIPOS DE ALINHAMENTO -->
+  <div class="divider reveal"><span>Tipos de alinhamento</span></div>
+  <div class="cards-grid reveal">
+    <div class="card"><div class="card-num">01</div><h4>À esquerda (padrão)</h4><p>O mais forte para blocos de texto. Cria uma borda limpa e previsível — o olho sabe exatamente onde começa cada linha.</p></div>
+    <div class="card"><div class="card-num">02</div><h4>À direita</h4><p>Cria tensão elegante quando usado com intenção — ex.: textos ao lado de imagens, legendas, datas em timelines.</p></div>
+    <div class="card"><div class="card-num">03</div><h4>Centralizado</h4><p>Formal e clássico, mas fraco para blocos longos. Adequado para títulos isolados, convites, poesias. Evite centralizar múltiplas linhas longas.</p></div>
+    <div class="card"><div class="card-num">04</div><h4>Justificado</h4><p>Cria margens limpas em ambos os lados. Exige atenção ao hifenismo e ao espaçamento entre palavras para evitar "rios" de espaço.</p></div>
+    <div class="card"><div class="card-num">05</div><h4>Alinhamento de grade</h4><p>Elementos diferentes alinhados a uma coluna ou eixo invisível. O eixo pode ser a borda de uma imagem, o início de um título, uma margem definida.</p></div>
+    <div class="card"><div class="card-num">06</div><h4>Mistura intencional</h4><p>Diferentes alinhamentos podem coexistir — mas cada escolha precisa ser deliberada e reforçada (repetição de alinhamento = sistema).</p></div>
+  </div>
+
+  <!-- DEMO 1: BIO -->
+  <div class="divider reveal"><span>Demo 1 · Cartão de biografia</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem alinhamento <span class="lbl-bad">✗</span></div>
+      <div class="bio-bad">
+        <span class="bb-name">Mariana Souza</span>
+        <span class="bb-role">Diretora de Arte</span>
+        <div class="bb-desc">Mariana tem 12 anos de experiência em branding e design editorial, com projetos para marcas nacionais e internacionais.</div>
+        <span class="bb-btn">Ver portfólio</span>
+      </div>
+      <p class="panel-note">Nome alinhado à esquerda, cargo à direita, descrição justificada, botão centralizado. Quatro alinhamentos diferentes = caos silencioso.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com alinhamento <span class="lbl-good">✓</span></div>
+      <div class="bio-good">
+        <div class="bg-role">Diretora de Arte</div>
+        <div class="bg-name">Mariana Souza</div>
+        <div class="bg-desc">12 anos de experiência em branding e design editorial, com projetos para marcas nacionais e internacionais.</div>
+        <div class="bg-btn">Ver portfólio</div>
+      </div>
+      <p class="panel-note">Tudo alinhado à esquerda. A borda esquerda é o eixo invisível que une todos os elementos — limpo, profissional, legível.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 2: TEXTO CENTRALIZADO -->
+  <div class="divider reveal"><span>Demo 2 · Centralização excessiva vs. alinhamento consistente</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Centralizado em excesso <span class="lbl-bad">✗</span></div>
+      <div class="centered-bad">
+        <h3>Workshop de Identidade Visual</h3>
+        Para designers e profissionais de comunicação<br>
+        que desejam aprofundar seus conhecimentos<br>
+        em sistemas de marca e linguagem visual.<br><br>
+        📍 Sala de Design, bloco B<br>
+        🗓 Sábado, 22 de março<br>
+        ⏰ Das 9h às 17h
+      </div>
+      <p class="panel-note">Centralizar parágrafos cria bordas irregulares — o olho não encontra eixo. Cada linha termina em um lugar diferente, gerando desconforto.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Alinhado à esquerda <span class="lbl-good">✓</span></div>
+      <div class="aligned-good">
+        <div class="ag-rule"></div>
+        <h3>Workshop de Identidade Visual</h3>
+        <p style="font-style:italic;font-size:.8rem;color:#888;margin-bottom:8px;">Para designers e profissionais de comunicação que desejam aprofundar seus conhecimentos em sistemas de marca.</p>
+        <p style="font-size:.82rem;color:#444;margin:0;line-height:1.8;">📍 Sala de Design, bloco B<br>🗓 Sábado, 22 de março<br>⏰ Das 9h às 17h</p>
+      </div>
+      <p class="panel-note">Borda esquerda clara e consistente. A linha verde reinforce o eixo. Muito mais fácil e agradável de ler.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 3: GRID -->
+  <div class="divider reveal"><span>Demo 3 · Grid de informações / métricas</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem alinhamento de grade <span class="lbl-bad">✗</span></div>
+      <div class="grid-bad">
+        <div class="grid-bad-item">🎯 Engajamento: 47%</div>
+        <div class="grid-bad-item">Alcance<br>12.400</div>
+        <div class="grid-bad-item">Cliques · 830</div>
+        <div class="grid-bad-item">Taxa de conversão<br>3,2%</div>
+      </div>
+      <p class="panel-note">Larguras irregulares, alinhamentos mistos, ícones em apenas um item. Cada bloco tem seu próprio mundo visual.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com alinhamento de grade <span class="lbl-good">✓</span></div>
+      <div class="grid-good">
+        <div class="grid-good-item"><div class="ggi-label">Engajamento</div><div class="ggi-val">47%</div></div>
+        <div class="grid-good-item"><div class="ggi-label">Alcance</div><div class="ggi-val">12.400</div></div>
+        <div class="grid-good-item"><div class="ggi-label">Cliques</div><div class="ggi-val">830</div></div>
+        <div class="grid-good-item"><div class="ggi-label">Conversão</div><div class="ggi-val">3,2%</div></div>
+      </div>
+      <p class="panel-note">Grade 2×2 com células idênticas. Label em mono pequeno + valor em negrito grande — alinhados ao mesmo eixo esquerdo em todos.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 4: LAYOUT DE PÁGINA -->
+  <div class="divider reveal"><span>Demo 4 · Layout de página / seção</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Elementos flutuando <span class="lbl-bad">✗</span></div>
+      <div style="font-family:Arial;font-size:12px;padding:4px;position:relative;min-height:130px;">
+        <div style="margin-left:30px;font-size:15px;font-weight:bold;">Nossos Serviços</div>
+        <div style="margin-left:15px;font-size:11px;color:#777;margin-top:4px;">Oferecemos soluções completas</div>
+        <div style="margin-left:45px;margin-top:10px;font-size:12px;">• Branding e identidade visual</div>
+        <div style="margin-left:20px;font-size:12px;">• Design editorial</div>
+        <div style="margin-left:55px;font-size:12px;">• Motion design</div>
+        <div style="position:absolute;right:10px;bottom:10px;font-size:10px;color:#aaa;">ver mais →</div>
+      </div>
+      <p class="panel-note">Cada linha começa em um recuo diferente. Não há eixo — os elementos parecem dispersos ao acaso na página.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Eixo único consistente <span class="lbl-good">✓</span></div>
+      <div style="font-family:'Lato',sans-serif;padding:4px 0;border-left:3px solid var(--c-align);padding-left:14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-align);margin-bottom:3px;">Serviços</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:900;color:#0f0e0c;margin-bottom:4px;">Soluções Completas</div>
+        <div style="font-size:.78rem;color:#888;margin-bottom:8px;">Oferecemos soluções end-to-end para sua marca.</div>
+        <div style="font-size:.8rem;color:#444;line-height:1.9;">→ Branding e identidade visual<br>→ Design editorial<br>→ Motion design</div>
+        <div style="font-size:.72rem;color:var(--c-align);margin-top:8px;font-weight:700;">ver mais →</div>
+      </div>
+      <p class="panel-note">A borda verde é o eixo. Todo elemento começa exatamente no mesmo ponto. O "ver mais" também fica no mesmo eixo — nada flutua.</p>
+    </div>
+  </div>
+
+  <!-- ACCORDION -->
+  <div class="divider reveal"><span>Dúvidas frequentes</span></div>
+  <div class="accordion reveal">
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">Posso misturar alinhamentos diferentes em um mesmo layout? <span class="acc-arrow">▼</span></button>
+      <div class="acc-body">Sim — desde que seja intencional e reforçado pela Repetição. Por exemplo: todos os títulos alinhados à esquerda e todas as legendas de imagem alinhadas à direita. O leitor aprende o sistema. O problema é misturar <em>aleatoriamente</em> — um título centralizado, o próximo à esquerda, o próximo à direita sem qualquer lógica.</div>
+    </div>
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">Centralizar título é sempre errado? <span class="acc-arrow">▼</span></button>
+      <div class="acc-body">Não. Centralizar é problemático quando aplicado a <em>blocos de texto</em> (parágrafos) ou quando há muitos elementos misturados. Para um título isolado, convite, cartão ou poema, a centralização pode ser elegante. A regra é: se centralizar, centralize <em>tudo</em> que faz parte daquele grupo, ou nada. Metade centralizado, metade à esquerda é o pior dos dois mundos.</div>
+    </div>
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">Como o alinhamento se relaciona com os outros princípios? <span class="acc-arrow">▼</span></button>
+      <div class="acc-body">Alinhamento e Repetição são inseparáveis: você repete o mesmo eixo de alinhamento em toda a peça. Alinhamento e Proximidade também dialogam: elementos próximos geralmente compartilham o mesmo alinhamento. E o Contraste pode vir de um alinhamento inesperado — uma citação alinhada à direita em um documento todo à esquerda cria tensão visual proposital.</div>
+    </div>
+  </div>
+
+  <!-- ATIVIDADE -->
+  <div class="activity reveal">
+    <p style="font-size:.9rem;margin-bottom:.5rem;"><strong>Objetivo:</strong> Auditar e corrigir o alinhamento de um layout existente.</p>
+    <ol class="activity-steps">
+      <li>Abra um documento ou slide. Ative as guias/réguas de alinhamento da ferramenta.</li>
+      <li>Para cada elemento, verifique: existe outro elemento na página com o qual ele compartilha um eixo?</li>
+      <li>Identifique todos os elementos "flutuando" — sem conexão visual com nada.</li>
+      <li>Escolha <em>um</em> eixo principal (geralmente a margem esquerda) e alinhe todos os elementos a ele.</li>
+      <li>Se houver colunas, garanta que a margem de uma coluna seja o eixo dos elementos nela contidos.</li>
+      <li>Remova qualquer centralização de parágrafo (não de título isolado).</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     4. PROXIMIDADE
+══════════════════════════════════════════════ -->
+<section id="proximidade" class="p-prox" style="background:rgba(108,52,131,.04);padding-bottom:3rem;">
+<div class="container">
+
+  <div class="chapter reveal">
+    <p class="ch-eyebrow">Princípio 04 · C.R.A.P.</p>
+    <h1 class="ch-title">Proximidade</h1>
+    <div class="ch-accent"></div>
+    <p class="ch-lead">Itens relacionados entre si devem estar agrupados visualmente. Quando elementos têm <em>relação lógica</em>, eles devem estar <em>próximos fisicamente</em>. Isso reduz a confusão e cria organização clara — sem precisar de uma só palavra extra.</p>
+  </div>
+
+  <div class="def-box reveal">
+    <p>"Agrupe os itens relacionados. Mova-os fisicamente para perto uns dos outros, de forma que o agrupamento se torne uma única unidade visual, em vez de uma porção de pedaços isolados."</p>
+    <cite>— Robin Williams, The Non-Designer's Design Book</cite>
+  </div>
+
+  <div class="pullquote reveal">
+    <p>"A proximidade não significa que os itens precisam estar próximos entre si — significa que eles devem estar <em>visualmente conectados</em> de alguma forma."</p>
+    <cite>— Robin Williams</cite>
+  </div>
+
+  <!-- PROPÓSITOS -->
+  <div class="divider reveal"><span>O que a proximidade faz</span></div>
+  <ul class="checklist reveal">
+    <li><span class="cl-arrow">→</span><span><strong>Organiza sem palavras:</strong> o leitor entende que "esses elementos pertencem juntos" apenas pela disposição espacial.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Reduz o ruído:</strong> elementos agrupados são percebidos como uma unidade — menos "objetos" para o cérebro processar.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Cria hierarquia espacial:</strong> o espaço entre grupos é maior do que o espaço dentro dos grupos.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Direciona o olhar:</strong> o olho percorre grupos, não elementos individuais — a navegação fica mais natural.</span></li>
+    <li><span class="cl-arrow">→</span><span><strong>Comunica relacionamentos:</strong> legenda próxima da imagem, rótulo próximo do campo de formulário, preço próximo do produto.</span></li>
+  </ul>
+
+  <!-- DEMO 1: FORMULÁRIO -->
+  <div class="divider reveal"><span>Demo 1 · Formulário</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem proximidade <span class="lbl-bad">✗</span></div>
+      <div class="form-bad">
+        <div class="fb-label">Nome</div>
+        <div class="fb-input">Ana Lima</div>
+        <div class="fb-label">E-mail</div>
+        <div class="fb-input">ana@email.com</div>
+        <div class="fb-label">Mensagem</div>
+        <div class="fb-input" style="height:38px;">Olá, gostaria de saber mais...</div>
+      </div>
+      <p class="panel-note">Espaçamento igual entre todos os elementos. O rótulo "E-mail" fica tão distante do seu campo quanto do campo acima. A relação campo↔rótulo se perde.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com proximidade <span class="lbl-good">✓</span></div>
+      <div class="form-good">
+        <div class="fg-group">
+          <label class="fg-label">Nome</label>
+          <div class="fg-input">Ana Lima</div>
+        </div>
+        <div class="fg-group">
+          <label class="fg-label">E-mail</label>
+          <div class="fg-input">ana@email.com</div>
+          <div class="fg-hint">Usado apenas para retorno.</div>
+        </div>
+        <div class="fg-group">
+          <label class="fg-label">Mensagem</label>
+          <div class="fg-input" style="height:42px;">Olá, gostaria de saber mais...</div>
+        </div>
+      </div>
+      <p class="panel-note">Cada rótulo está muito próximo do seu campo (4px), e os grupos têm 16px entre si. O espaço comunica: "label e campo são uma unidade".</p>
+    </div>
+  </div>
+
+  <!-- DEMO 2: CARD DE PRODUTO -->
+  <div class="divider reveal"><span>Demo 2 · Cartão de produto</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem proximidade <span class="lbl-bad">✗</span></div>
+      <div class="prod-bad">
+        <div style="height:60px;background:#e8e8e8;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">🖊</div>
+        <div style="font-size:14px;font-weight:bold;">Caneta de Design</div>
+        <div style="font-size:12px;color:#888;">Categoria: Material de Escritório</div>
+        <div style="font-size:11px;color:#555;">Caneta ergonômica de alta precisão para sketching e prototipagem.</div>
+        <div style="font-size:14px;font-weight:bold;color:#c00;">R$ 89,90</div>
+        <div style="background:#555;color:#fff;padding:5px;text-align:center;font-size:11px;margin-top:8px;">Adicionar ao carrinho</div>
+      </div>
+      <p class="panel-note">Espaçamento uniforme entre todos os itens. Nome do produto, categoria e descrição competem igualmente com o preço — o cartão não tem hierarquia clara.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com proximidade <span class="lbl-good">✓</span></div>
+      <div class="prod-good">
+        <div class="pg-img">🖊</div>
+        <div class="pg-body">
+          <div class="pg-meta">Material de Escritório</div>
+          <div class="pg-name">Caneta de Design</div>
+          <div class="pg-desc">Ergonômica, de alta precisão para sketching e prototipagem.</div>
+          <div class="pg-price-row">
+            <div class="pg-price">R$ 89,90</div>
+            <div class="pg-btn">Comprar</div>
+          </div>
+        </div>
+      </div>
+      <p class="panel-note">Grupos claros: [meta/nome/descrição] separados do [preço/botão] por uma linha e espaço maior. Cada grupo é uma unidade com significado próprio.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 3: MENU DE NAVEGAÇÃO -->
+  <div class="divider reveal"><span>Demo 3 · Menu de navegação</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Sem proximidade (lista plana) <span class="lbl-bad">✗</span></div>
+      <div class="menu-bad">
+        <a href="#">Início</a>
+        <a href="#">Sobre nós</a>
+        <a href="#">Nossa história</a>
+        <a href="#">Equipe</a>
+        <a href="#">Serviços</a>
+        <a href="#">Branding</a>
+        <a href="#">Editorial</a>
+        <a href="#">Contato</a>
+        <a href="#">Trabalhe conosco</a>
+      </div>
+      <p class="panel-note">9 itens com o mesmo espaçamento. "Nossa história" e "Equipe" pertencem a "Sobre nós", mas o layout não comunica isso.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Com proximidade (agrupado) <span class="lbl-good">✓</span></div>
+      <div class="menu-good">
+        <div class="mg-group">
+          <div class="mg-group-title">Principal</div>
+          <a href="#">Início</a>
+        </div>
+        <div class="mg-group">
+          <div class="mg-group-title">Empresa</div>
+          <a href="#">Sobre nós</a>
+          <a href="#">Nossa história</a>
+          <a href="#">Equipe</a>
+        </div>
+        <div class="mg-group">
+          <div class="mg-group-title">Serviços</div>
+          <a href="#">Branding</a>
+          <a href="#">Editorial</a>
+        </div>
+        <div class="mg-group">
+          <div class="mg-group-title">Contato</div>
+          <a href="#">Fale conosco</a>
+          <a href="#">Trabalhe conosco</a>
+        </div>
+      </div>
+      <p class="panel-note">Grupos com título, itens próximos dentro de cada grupo, espaço maior entre grupos. A estrutura do site fica visível no menu.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 4: LEGENDA DE IMAGEM -->
+  <div class="divider reveal"><span>Demo 4 · Imagem com legenda</span></div>
+  <div class="compare reveal">
+    <div class="compare-panel">
+      <div class="panel-label">Legenda distante (sem proximidade) <span class="lbl-bad">✗</span></div>
+      <div style="font-family:Arial;font-size:12px;">
+        <div style="background:#ddd;height:80px;display:flex;align-items:center;justify-content:center;color:#999;font-size:11px;">[ Imagem do workshop ]</div>
+        <br><br>
+        <div style="font-size:11px;color:#777;text-align:center;">Participantes durante a dinâmica de grupo, março de 2025.</div>
+        <br>
+        <div style="font-size:12px;color:#444;">A dinâmica foi realizada com foco em colaboração e empatia no processo criativo...</div>
+      </div>
+      <p class="panel-note">A legenda está distante da imagem e perto do corpo de texto. O leitor não sabe a que a legenda se refere sem ler com atenção.</p>
+    </div>
+    <div class="compare-panel">
+      <div class="panel-label">Legenda próxima (com proximidade) <span class="lbl-good">✓</span></div>
+      <div style="font-family:'Lato',sans-serif;">
+        <div style="background:#ddd;height:80px;display:flex;align-items:center;justify-content:center;color:#999;font-size:11px;">[ Imagem do workshop ]</div>
+        <div style="font-size:.72rem;color:var(--c-prox);font-family:'DM Mono',monospace;padding:4px 0 2px;border-bottom:1px solid #eee;margin-bottom:14px;">Participantes durante dinâmica de grupo · Março 2025</div>
+        <div style="font-size:.82rem;color:#444;line-height:1.65;">A dinâmica foi realizada com foco em colaboração e empatia no processo criativo...</div>
+      </div>
+      <p class="panel-note">Legenda imediatamente abaixo da imagem (4px), com linha divisória antes do corpo de texto. A relação imagem↔legenda é imediata e inequívoca.</p>
+    </div>
+  </div>
+
+  <!-- ACCORDION -->
+  <div class="divider reveal"><span>Dúvidas frequentes</span></div>
+  <div class="accordion reveal">
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">Como saber quais elementos devem ser agrupados? <span class="acc-arrow">▼</span></button>
+      <div class="acc-body">Pense no conteúdo, não na estética. Pergunte: "Esses elementos têm relação lógica?" Uma foto e sua legenda → sim, são o mesmo item. Um título e seu parágrafo → sim. O logotipo e o menu principal → não necessariamente — dependem da estrutura da página. Comece pelo conteúdo, depois organize espacialmente.</div>
+    </div>
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">Qual é o problema de deixar tudo com espaçamento igual? <span class="acc-arrow">▼</span></button>
+      <div class="acc-body">Quando tudo tem o mesmo espaçamento, nada tem relação com nada. O espaço <em>comunica</em> relação. Espaço pequeno entre dois itens diz "estes pertencem juntos". Espaço grande diz "estes são grupos distintos". Uniformidade espacial silencia essa comunicação e força o leitor a ler o conteúdo inteiro para entender a estrutura — em vez de percebê-la instantaneamente.</div>
+    </div>
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">Quanto espaço separar os grupos? Existe uma regra? <span class="acc-arrow">▼</span></button>
+      <div class="acc-body">Williams não dá números fixos, mas a lógica é: o espaço <em>entre</em> grupos deve ser claramente maior do que o espaço <em>dentro</em> de um grupo. Uma proporção comum é 3:1 — se os itens dentro do grupo têm 8px entre si, os grupos têm 24px entre si. O importante é que a diferença seja perceptível a olho nu, sem precisar medir.</div>
+    </div>
+  </div>
+
+  <!-- ATIVIDADE -->
+  <div class="activity reveal">
+    <p style="font-size:.9rem;margin-bottom:.5rem;"><strong>Objetivo:</strong> Reorganizar um layout usando o princípio da proximidade.</p>
+    <ol class="activity-steps">
+      <li>Pegue um flyer, página ou formulário com múltiplos elementos.</li>
+      <li>Liste os elementos e agrupe-os por relação lógica de conteúdo (sem olhar para o visual).</li>
+      <li>No layout, mova os elementos relacionados para ficarem próximos — reduza o espaçamento interno do grupo.</li>
+      <li>Aumente o espaçamento entre grupos diferentes — o espaço entre grupos deve ser claramente maior.</li>
+      <li>Avalie: sem ler o conteúdo, a estrutura dos grupos fica visível só pelo espaço?</li>
+      <li>Bônus: remova qualquer linha ou caixa usada para "separar" seções e veja se o espaço sozinho já faz o trabalho.</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     SÍNTESE FINAL
+══════════════════════════════════════════════ -->
+<div class="final-synthesis">
+  <div class="container">
+    <h2>Os 4 Princípios em Síntese</h2>
+    <p style="color:#bbb;font-size:.9rem;max-width:580px;line-height:1.7;">Cada princípio resolve um problema específico de comunicação visual. Juntos, eles formam um sistema completo para organizar qualquer tipo de informação de forma clara e profissional.</p>
+
+    <div class="synth-grid">
+      <div class="synth-card">
+        <div class="sc-letter" style="color:var(--c-contrast);">C</div>
+        <h3>Contraste</h3>
+        <p><strong style="color:#e8d5a3;">Problema que resolve:</strong> Layouts apagados onde tudo parece igual e nada se destaca.<br><br><strong style="color:#e8d5a3;">Regra central:</strong> Se dois elementos não são iguais, torne-os muito diferentes. Não seja tímido.</p>
+      </div>
+      <div class="synth-card">
+        <div class="sc-letter" style="color:#7aabdc;">R</div>
+        <h3>Repetição</h3>
+        <p><strong style="color:#e8d5a3;">Problema que resolve:</strong> Peças que parecem uma coleção de partes desconexas, sem identidade.<br><br><strong style="color:#e8d5a3;">Regra central:</strong> Repita elementos visuais ao longo de toda a peça para criar unidade e coesão.</p>
+      </div>
+      <div class="synth-card">
+        <div class="sc-letter" style="color:#7acca7;">A</div>
+        <h3>Alinhamento</h3>
+        <p><strong style="color:#e8d5a3;">Problema que resolve:</strong> Layouts descuidados onde os elementos parecem jogados na página ao acaso.<br><br><strong style="color:#e8d5a3;">Regra central:</strong> Nenhum elemento deve ser colocado arbitrariamente. Tudo precisa de conexão visual.</p>
+      </div>
+      <div class="synth-card">
+        <div class="sc-letter" style="color:#c9a7e0;">P</div>
+        <h3>Proximidade</h3>
+        <p><strong style="color:#e8d5a3;">Problema que resolve:</strong> Informação esparsa onde o leitor não consegue identificar o que pertence a quê.<br><br><strong style="color:#e8d5a3;">Regra central:</strong> Agrupe elementos relacionados. O espaço comunica relação antes das palavras.</p>
+      </div>
+    </div>
+
+    <!-- TABELA -->
+    <table class="comp-table" style="margin-top:2.5rem;">
+      <thead>
+        <tr>
+          <th>Princípio</th>
+          <th>Pergunta-guia</th>
+          <th>Erro comum</th>
+          <th>Solução imediata</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="ct-letter" style="color:var(--c-contrast);">C</span> Contraste</td>
+          <td>"Qual elemento deve dominar este layout?"</td>
+          <td>Tudo no mesmo tamanho e peso — layout "plano"</td>
+          <td>Aumente o título em 3× e adicione uma cor forte</td>
+        </tr>
+        <tr>
+          <td><span class="ct-letter" style="color:var(--c-rep);">R</span> Repetição</td>
+          <td>"Esse elemento segue o mesmo padrão dos outros?"</td>
+          <td>Cada seção tem um estilo diferente de título</td>
+          <td>Defina um estilo único por nível hierárquico</td>
+        </tr>
+        <tr>
+          <td><span class="ct-letter" style="color:var(--c-align);">A</span> Alinhamento</td>
+          <td>"A que esse elemento está visualmente conectado?"</td>
+          <td>Centralizar parágrafo por parágrafo sem critério</td>
+          <td>Escolha um eixo (esq.) e alinhe tudo a ele</td>
+        </tr>
+        <tr>
+          <td><span class="ct-letter" style="color:var(--c-prox);">P</span> Proximidade</td>
+          <td>"Quais elementos têm relação lógica entre si?"</td>
+          <td>Espaçamento igual entre todos os itens</td>
+          <td>Aproxime o que está relacionado, afaste o que não está</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="tag-cloud">
+      <span>Design Visual</span>
+      <span>C.R.A.P.</span>
+      <span>Contraste</span>
+      <span>Repetição</span>
+      <span>Alinhamento</span>
+      <span>Proximidade</span>
+      <span>Robin Williams</span>
+      <span>The Non-Designer's Design Book</span>
+      <span>Tipografia</span>
+      <span>Hierarquia Visual</span>
+      <span>Layout</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Material de Aula — Os 4 Princípios C.R.A.P.</span>
+  <span>Baseado em: <em>The Non-Designer's Design Book</em> · Robin Williams</span>
+</footer>
+
+<script>
+/* ACCORDION */
+function toggleAcc(btn){
+  const body = btn.nextElementSibling;
+  const open = body.classList.contains('open');
+  btn.closest('.accordion').querySelectorAll('.acc-body').forEach(b=>b.classList.remove('open'));
+  btn.closest('.accordion').querySelectorAll('.acc-trigger').forEach(b=>b.classList.remove('open'));
+  if(!open){body.classList.add('open');btn.classList.add('open');}
+}
+
+/* SCROLL REVEAL */
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');}});
+},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* NAV TAB ACTIVE STATE */
+const sections = ['contraste','repeticao','alinhamento','proximidade'];
+const tabs = document.querySelectorAll('.nav-tab');
+const sio = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id = e.target.id;
+      tabs.forEach(t=>{
+        t.style.color = t.href.includes(id)?'#fff':'#999';
+      });
+    }
+  });
+},{threshold:0.3});
+sections.forEach(id=>{const el=document.getElementById(id);if(el)sio.observe(el);});
+</script>
+</body>
+</html>
