@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heurísticas de Nielsen — Referência Rápida</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+    /* ── TOKENS ───────────────────────────────────────────── */
+    :root {
+      --bg:         #0d1117;
+      --bg-card:    #161b22;
+      --bg-code:    #0d1117;
+      --bg-err:     #1a0e0e;
+      --bg-ok:      #0d1a10;
+      --border:     #30363d;
+      --border-dim: #21262d;
+      --text:       #e6edf3;
+      --text-muted: #7d8590;
+      --text-dim:   #484f58;
+      --red:        #f85149;
+      --red-bg:     #3d1214;
+      --green:      #3fb950;
+      --green-bg:   #0f2c17;
+      --yellow:     #e3b341;
+      --blue:       #58a6ff;
+      --purple:     #bc8cff;
+      --orange:     #ffa657;
+      --mono:       'JetBrains Mono', monospace;
+      --sans:       'IBM Plex Sans', system-ui, sans-serif;
+    }
+
+    /* ── RESET ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ───────────────────────────────────────────── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,17,23,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .topbar__left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .topbar__badge {
+      background: var(--blue);
+      color: #000;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .topbar__title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .topbar__subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .topbar__nav {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-pill {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 120ms;
+      white-space: nowrap;
+    }
+    .nav-pill:hover {
+      background: var(--bg-card);
+      color: var(--text);
+      border-color: var(--text-dim);
+    }
+
+    /* ── LAYOUT ───────────────────────────────────────────── */
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── PAGE HEADER ──────────────────────────────────────── */
+    .page-header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-dim);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .page-header__eyebrow {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--blue);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .page-header__title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .page-header__desc {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      max-width: 520px;
+    }
+
+    .page-header__meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .meta-tag {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      border: 1px solid var(--border-dim);
+      border-radius: 4px;
+      padding: 0.2rem 0.5rem;
+    }
+
+    /* ── GRID DE CARDS ────────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(580px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ── CARD ─────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 200ms, box-shadow 200ms;
+    }
+    .card:hover {
+      border-color: var(--accent, var(--blue));
+      box-shadow: 0 0 0 1px var(--accent, var(--blue))22;
+    }
+
+    .card__header {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border-dim);
+      background: color-mix(in srgb, var(--accent, var(--blue)) 8%, transparent);
+    }
+
+    .card__num {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--accent, var(--blue));
+      color: #000;
+      padding: 0.2rem 0.45rem;
+      border-radius: 5px;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+
+    .card__title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .card__layer {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .card__def {
+      padding: 0.75rem 1rem;
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-dim);
+      line-height: 1.55;
+    }
+
+    .card__def strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── BLOCOS DE CÓDIGO ─────────────────────────────────── */
+    .code-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .code-col {
+      padding: 0.6rem 0.85rem 0.85rem;
+    }
+    .code-col:first-child {
+      border-right: 1px solid var(--border-dim);
+      background: var(--bg-err);
+    }
+    .code-col:last-child {
+      background: var(--bg-ok);
+    }
+
+    .code-col__label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .code-col:first-child .code-col__label { color: var(--red); }
+    .code-col:last-child  .code-col__label { color: var(--green); }
+
+    .code-col__label::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    pre {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.6;
+      white-space: pre;
+      overflow-x: auto;
+      color: var(--text);
+    }
+    .code-col:first-child pre { color: #fca5a5; }
+    .code-col:last-child  pre { color: #86efac; }
+
+    .kw  { color: var(--purple); }
+    .fn  { color: var(--blue);   }
+    .str { color: var(--yellow); }
+    .cm  { color: var(--text-dim); font-style: italic; }
+    .hl  { background: rgba(255,255,255,0.06); border-radius: 3px; padding: 0 2px; }
+
+    /* ── RODAPÉ DO CARD (qual erro no arquivo) ────────────── */
+    .card__footer {
+      padding: 0.5rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card__footer span {
+      color: var(--accent, var(--blue));
+      font-weight: 600;
+    }
+
+    /* ── CORES POR HEURÍSTICA ─────────────────────────────── */
+    .h1  { --accent: #58a6ff; }
+    .h2  { --accent: #3fb950; }
+    .h3  { --accent: #ffa657; }
+    .h4  { --accent: #bc8cff; }
+    .h5  { --accent: #f85149; }
+    .h6  { --accent: #2dd4bf; }
+    .h7  { --accent: #e3b341; }
+    .h8  { --accent: #94a3b8; }
+    .h9  { --accent: #fb7185; }
+    .h10 { --accent: #38bdf8; }
+
+    /* ── SEPARADOR DE SEÇÃO ───────────────────────────────── */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 2.5rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-dim);
+    }
+
+    /* ── LEGENDA RÁPIDA ───────────────────────────────────── */
+    .legend {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .legend__item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.775rem;
+      color: var(--text-muted);
+    }
+    .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .dot-red   { background: var(--red);   }
+    .dot-green { background: var(--green); }
+
+    /* ── SCROLLBAR ────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* ── RESPONSIVE ───────────────────────────────────────── */
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+      .code-split { grid-template-columns: 1fr; }
+      .code-col:first-child { border-right: none; border-bottom: 1px solid var(--border-dim); }
+      .topbar__nav { display: none; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <span class="topbar__badge">UI/UX</span>
+      <div>
+        <div class="topbar__title">Heurísticas de Nielsen</div>
+        <div class="topbar__subtitle">Cartão de referência — Atividade de depuração</div>
+      </div>
+    </div>
+    <nav class="topbar__nav" aria-label="Navegar para heurística">
+      <a class="nav-pill" href="#h1">H1</a>
+      <a class="nav-pill" href="#h2">H2</a>
+      <a class="nav-pill" href="#h3">H3</a>
+      <a class="nav-pill" href="#h4">H4</a>
+      <a class="nav-pill" href="#h5">H5</a>
+      <a class="nav-pill" href="#h6">H6</a>
+      <a class="nav-pill" href="#h7">H7</a>
+      <a class="nav-pill" href="#h8">H8</a>
+      <a class="nav-pill" href="#h9">H9</a>
+      <a class="nav-pill" href="#h10">H10</a>
+    </nav>
+  </header>
+
+  <main class="page">
+
+    <!-- CABEÇALHO -->
+    <div class="page-header">
+      <div>
+        <div class="page-header__eyebrow">PUC Goiás · Design de Interfaces Web</div>
+        <h1 class="page-header__title">10 Heurísticas de Nielsen</h1>
+        <p class="page-header__desc">
+          Referência rápida para a atividade de depuração de código.
+          Cada card mostra a definição da heurística, um exemplo de
+          <strong style="color:var(--red)">violação</strong> e a
+          <strong style="color:var(--green)">correção</strong> correspondente
+          em HTML, CSS ou JavaScript.
+        </p>
+      </div>
+      <div class="page-header__meta">
+        <span class="meta-tag">tarefas_erros.html</span>
+        <span class="meta-tag">10 erros · HTML / CSS / JS</span>
+        <span class="meta-tag">Jakob Nielsen, 1994</span>
+      </div>
+    </div>
+
+    <!-- LEGENDA -->
+    <div class="legend">
+      <div class="legend__item"><span class="dot dot-red"></span> Coluna vermelha — como o erro aparece no código</div>
+      <div class="legend__item"><span class="dot dot-green"></span> Coluna verde — como deve ficar após a correção</div>
+    </div>
+
+    <!-- SEÇÃO 1-5 -->
+    <div class="section-label">Heurísticas 1 – 5 · Percepção e Controle</div>
+
+    <div class="grid">
+
+      <!-- H1 -->
+      <article class="card h1" id="h1">
+        <div class="card__header">
+          <span class="card__num">H1</span>
+          <span class="card__title">Visibilidade do Status do Sistema</span>
+          <span class="card__layer">JavaScript</span>
+        </div>
+        <div class="card__def">
+          O sistema deve <strong>sempre informar o usuário</strong> sobre o que está acontecendo,
+          com feedback visual adequado em tempo razoável — loader durante processamento,
+          confirmação após ação concluída, indicação de progresso em operações longas.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="kw">function</span> <span class="fn">salvarTarefa</span>() {
+  <span class="cm">// insere na lista e limpa form...</span>
+  tarefas.push(nova);
+  renderTabela();
+  limparForm();
+  <span class="cm">// nenhum feedback ao usuário ✗</span>
+}</pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="kw">function</span> <span class="fn">salvarTarefa</span>() {
+  tarefas.push(nova);
+  renderTabela();
+  limparForm();
+  <span class="cm">// chamar toast existente ✓</span>
+  <span class="fn">mostrarToast</span>(<span class="str">'Tarefa salva!'</span>);
+}</pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#1</span> no arquivo · função salvarTarefa() e salvarEdicao() · classe .toast no CSS</div>
+      </article>
+
+      <!-- H2 -->
+      <article class="card h2" id="h2">
+        <div class="card__header">
+          <span class="card__num">H2</span>
+          <span class="card__title">Correspondência com o Mundo Real</span>
+          <span class="card__layer">HTML</span>
+        </div>
+        <div class="card__def">
+          Use a <strong>linguagem do usuário</strong>: palavras, frases e metáforas do
+          mundo real — não códigos internos, siglas de sistema ou jargão técnico.
+          Elementos de UI devem seguir convenções que o usuário já conhece.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="cm">&lt;!-- Códigos internos visíveis --&gt;</span>
+&lt;<span class="kw">option</span> value=<span class="str">"P1"</span>&gt;P1&lt;/option&gt;
+&lt;<span class="kw">option</span> value=<span class="str">"P2"</span>&gt;P2&lt;/option&gt;
+&lt;<span class="kw">option</span> value=<span class="str">"ST_PEND"</span>&gt;
+  ST_PEND
+&lt;/option&gt;</pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="cm">&lt;!-- Termos em linguagem natural --&gt;</span>
+&lt;<span class="kw">option</span> value=<span class="str">"alta"</span>&gt;Alta&lt;/option&gt;
+&lt;<span class="kw">option</span> value=<span class="str">"media"</span>&gt;Média&lt;/option&gt;
+&lt;<span class="kw">option</span> value=<span class="str">"pendente"</span>&gt;
+  Pendente
+&lt;/option&gt;</pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#2</span> no arquivo · &lt;select&gt; de Prioridade e Status no form e no modal</div>
+      </article>
+
+      <!-- H3 -->
+      <article class="card h3" id="h3">
+        <div class="card__header">
+          <span class="card__num">H3</span>
+          <span class="card__title">Controle e Liberdade do Usuário</span>
+          <span class="card__layer">JavaScript</span>
+        </div>
+        <div class="card__def">
+          O usuário comete ações indesejadas. O sistema deve oferecer
+          <strong>saídas claras</strong>: confirmação antes de ações destrutivas,
+          opção de cancelar e, idealmente, desfazer (undo). Sem essas saídas,
+          o usuário perde o controle.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="kw">function</span> <span class="fn">excluirTarefa</span>(id) {
+  <span class="cm">// exclui imediatamente, sem</span>
+  <span class="cm">// confirmação nem desfazer ✗</span>
+  tarefas = tarefas.<span class="fn">filter</span>(
+    t => t.id !== id
+  );
+  <span class="fn">renderTabela</span>();
+}</pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="kw">function</span> <span class="fn">excluirTarefa</span>(id) {
+  <span class="kw">const</span> t = tarefas.<span class="fn">find</span>(
+    x => x.id === id);
+  <span class="kw">if</span> (!<span class="fn">confirm</span>(
+    <span class="str">`Excluir "${t.titulo}"?`</span>))
+    <span class="kw">return</span>;
+  tarefas = tarefas.<span class="fn">filter</span>(
+    t => t.id !== id);
+  <span class="fn">renderTabela</span>();
+}</pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#3</span> no arquivo · função excluirTarefa() · botão Excluir em renderTabela()</div>
+      </article>
+
+      <!-- H4 -->
+      <article class="card h4" id="h4">
+        <div class="card__header">
+          <span class="card__num">H4</span>
+          <span class="card__title">Consistência e Padrões</span>
+          <span class="card__layer">CSS + HTML</span>
+        </div>
+        <div class="card__def">
+          Palavras, situações e ações similares devem ter a <strong>mesma aparência e comportamento</strong>
+          em toda a interface. Seguir as convenções da plataforma
+          evita que o usuário precise reaprender padrões já assimilados.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="cm">/* Salvar — classe própria */</span>
+&lt;<span class="kw">button</span> class=<span class="str">"btn-salvar"</span>&gt;
+  Salvar
+&lt;/button&gt;
+
+<span class="cm">/* Atualizar — estilo inline! */</span>
+&lt;<span class="kw">button</span> style=<span class="str">"background:green;
+  color:white;padding:5px"</span>&gt;
+  Atualizar
+&lt;/button&gt;</pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="cm">/* Ambos usam a mesma classe */</span>
+&lt;<span class="kw">button</span> class=<span class="str">"btn-salvar"</span>&gt;
+  Salvar
+&lt;/button&gt;
+
+<span class="cm">/* Removido o style inline */</span>
+&lt;<span class="kw">button</span> class=<span class="str">"btn-salvar"</span>&gt;
+  Atualizar
+&lt;/button&gt;</pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#4</span> no arquivo · botão Atualizar no modal · rótulos "Fechar" vs "Cancelar"</div>
+      </article>
+
+      <!-- H5 -->
+      <article class="card h5" id="h5">
+        <div class="card__header">
+          <span class="card__num">H5</span>
+          <span class="card__title">Prevenção de Erros</span>
+          <span class="card__layer">HTML</span>
+        </div>
+        <div class="card__def">
+          Melhor que boas mensagens de erro é um <strong>design que impede o erro antes
+          de acontecer</strong>. Restrições de entrada, confirmações e validações antecipadas
+          são mais eficazes que qualquer tratamento posterior.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="cm">&lt;!-- Aceita qualquer texto --&gt;</span>
+&lt;<span class="kw">input</span>
+  type=<span class="str">"text"</span>
+  id=<span class="str">"prazo"</span>
+  name=<span class="str">"prazo"</span>
+<span class="cm">  &lt;!-- "abcdef", datas passadas --&gt;</span>
+<span class="cm">  &lt;!-- e formatos inválidos são --&gt;</span>
+<span class="cm">  &lt;!-- todos aceitos silenciosamente --&gt;</span>
+/&gt;</pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="cm">&lt;!-- Seletor nativo de data --&gt;</span>
+&lt;<span class="kw">input</span>
+  type=<span class="str">"date"</span>
+  id=<span class="str">"prazo"</span>
+  name=<span class="str">"prazo"</span>
+  min=<span class="str">"2025-01-01"</span>
+  title=<span class="str">"Prazo da tarefa"</span>
+<span class="cm">  &lt;!-- min impede datas passadas --&gt;</span>
+/&gt;</pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#5</span> no arquivo · input Prazo no form principal e no modal de edição</div>
+      </article>
+
+    </div><!-- /grid 1-5 -->
+
+    <!-- SEÇÃO 6-10 -->
+    <div class="section-label">Heurísticas 6 – 10 · Eficiência e Suporte</div>
+
+    <div class="grid">
+
+      <!-- H6 -->
+      <article class="card h6" id="h6">
+        <div class="card__header">
+          <span class="card__num">H6</span>
+          <span class="card__title">Reconhecimento em vez de Memorização</span>
+          <span class="card__layer">HTML + JS</span>
+        </div>
+        <div class="card__def">
+          Minimize a carga cognitiva: opções, ações e dados devem estar
+          <strong>visíveis e compreensíveis sem que o usuário precise memorizar</strong>
+          informações de outras partes da interface. Não exija que o usuário
+          lembre códigos, IDs ou siglas internas.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="cm">&lt;!-- ID interno na tabela --&gt;</span>
+&lt;<span class="kw">th</span>&gt;ID&lt;/th&gt;
+&lt;<span class="kw">th</span>&gt;ST&lt;/th&gt;
+
+<span class="cm">&lt;!-- Badge com código bruto --&gt;</span>
+&lt;<span class="kw">span</span> class=<span class="str">"status-badge"</span>&gt;
+  ${t.status}
+&lt;/span&gt;
+<span class="cm">&lt;!-- exibe: ST_PEND, ST_PROG... --&gt;</span></pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="cm">&lt;!-- Sem coluna de ID --&gt;</span>
+&lt;<span class="kw">th</span>&gt;Status&lt;/th&gt;
+
+<span class="cm">&lt;!-- Badge com texto legível --&gt;</span>
+<span class="kw">const</span> label = {
+  pendente: <span class="str">'Pendente'</span>,
+  andamento: <span class="str">'Em andamento'</span>,
+  concluida: <span class="str">'Concluída'</span>
+};
+<span class="cm">// exibe: Pendente, Em andamento...</span></pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#6</span> no arquivo · &lt;thead&gt; da tabela · renderTabela() — campo ${t.status}</div>
+      </article>
+
+      <!-- H7 -->
+      <article class="card h7" id="h7">
+        <div class="card__header">
+          <span class="card__num">H7</span>
+          <span class="card__title">Flexibilidade e Eficiência de Uso</span>
+          <span class="card__layer">HTML + JS</span>
+        </div>
+        <div class="card__def">
+          Aceleradores — <strong>atalhos, filtros, autocompletar</strong> — são invisíveis
+          ao usuário iniciante, mas permitem que usuários experientes trabalhem com
+          muito mais rapidez. O sistema deve atender igualmente a ambos os perfis.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="cm">&lt;!-- Sem campo de busca/filtro --&gt;</span>
+<span class="cm">&lt;!-- Sem atalhos de teclado    --&gt;</span>
+<span class="cm">&lt;!-- Toda ação exige mouse     --&gt;</span>
+
+<span class="cm">/* Exemplo: Esc não fecha o modal */</span>
+<span class="cm">/* Enter não submete o form      */</span>
+<span class="cm">/* Sem forma de filtrar tarefas  */</span></pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre"><span class="cm">// Atalhos de teclado globais</span>
+document.<span class="fn">addEventListener</span>(
+  <span class="str">'keydown'</span>, e => {
+  <span class="kw">if</span> (e.key === <span class="str">'Escape'</span>)
+    <span class="fn">fecharModal</span>();
+  <span class="kw">if</span> (e.key === <span class="str">'/'</span>)
+    document.<span class="fn">getElementById</span>(
+      <span class="str">'busca'</span>).<span class="fn">focus</span>();
+});</pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#7</span> no arquivo · ausência de campo de busca e de listeners de teclado</div>
+      </article>
+
+      <!-- H8 -->
+      <article class="card h8" id="h8">
+        <div class="card__header">
+          <span class="card__num">H8</span>
+          <span class="card__title">Design Estético e Minimalista</span>
+          <span class="card__layer">HTML</span>
+        </div>
+        <div class="card__def">
+          Cada unidade extra de informação <strong>compete com as relevantes</strong>
+          e diminui sua visibilidade. Diálogos e telas não devem conter informações
+          irrelevantes ou raramente necessárias. Menos é mais.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="cm">&lt;!-- Dados técnicos do servidor  --&gt;</span>
+&lt;<span class="kw">div</span> class=<span class="str">"clutter-panel"</span>&gt;
+  IP: 10.0.3.47 |
+  Build: #20250418 |
+  RAM: 3.2GB/16GB |
+  Uptime: 14d 7h |
+  Versão: v2.4.1-beta |
+  Sessão expira: 00:47
+&lt;/div&gt;</pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="cm">&lt;!-- Remover o painel por completo --&gt;</span>
+<span class="cm">&lt;!-- Ou mover para área de admin   --&gt;</span>
+<span class="cm">&lt;!-- acessível apenas a admins     --&gt;</span>
+
+<span class="cm">&lt;!-- Manter apenas o que o usuário --&gt;</span>
+<span class="cm">&lt;!-- final precisa para sua tarefa --&gt;</span>
+<span class="cm">&lt;!-- principal: gerenciar tarefas  --&gt;</span></pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#8</span> no arquivo · &lt;div class="clutter-panel"&gt; no início do &lt;main&gt;</div>
+      </article>
+
+      <!-- H9 -->
+      <article class="card h9" id="h9">
+        <div class="card__header">
+          <span class="card__num">H9</span>
+          <span class="card__title">Diagnóstico e Recuperação de Erros</span>
+          <span class="card__layer">CSS + HTML</span>
+        </div>
+        <div class="card__def">
+          Mensagens de erro devem ser expressas em <strong>linguagem natural</strong>
+          (sem códigos técnicos), indicar <strong>precisamente o problema</strong>
+          e sugerir uma solução construtiva. O usuário não é desenvolvedor.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="cm">/* Fonte monospace reforça tom técnico */</span>
+.error-msg {
+  font-family: monospace;
+}
+
+<span class="cm">&lt;!-- Mensagem ilegível para o usuário --&gt;</span>
+VALIDATION_ERROR:
+  field[titulo]
+  cannot be null — ERR_0x01</pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="cm">/* Fonte normal, cor semântica */</span>
+.error-msg {
+  font-family: inherit;
+  color: #dc2626;
+}
+
+<span class="cm">&lt;!-- Mensagem clara e acionável --&gt;</span>
+O campo Título é obrigatório.
+Digite ao menos 3 caracteres.</pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#9</span> no arquivo · &lt;div class="error-msg"&gt; · .error-msg no CSS</div>
+      </article>
+
+      <!-- H10 -->
+      <article class="card h10" id="h10">
+        <div class="card__header">
+          <span class="card__num">H10</span>
+          <span class="card__title">Ajuda e Documentação</span>
+          <span class="card__layer">CSS + HTML</span>
+        </div>
+        <div class="card__def">
+          Embora o ideal seja que o sistema dispense documentação, ela deve existir
+          quando necessária. Inputs devem ter <strong>placeholder, dica e foco visível</strong>.
+          Remover <code style="font-size:0.75em;color:var(--red)">outline:none</code>
+          sem alternativa é uma violação grave de acessibilidade e usabilidade.
+        </div>
+        <div class="code-split">
+          <div class="code-col">
+            <div class="code-col__label">violação</div>
+<pre><span class="cm">/* Foco completamente invisível */</span>
+input, select, textarea {
+  outline: none; <span class="cm">/* ✗ proibido */</span>
+}
+
+<span class="cm">&lt;!-- Sem dica de preenchimento --&gt;</span>
+&lt;<span class="kw">input</span> type=<span class="str">"text"</span>
+       id=<span class="str">"titulo"</span> /&gt;</pre>
+          </div>
+          <div class="code-col">
+            <div class="code-col__label">correção</div>
+<pre><span class="cm">/* Foco visível apenas no teclado */</span>
+input:focus-visible {
+  outline: 2px solid #58a6ff;
+  outline-offset: 2px;
+}
+
+<span class="cm">&lt;!-- Placeholder e dica contextual --&gt;</span>
+&lt;<span class="kw">input</span> type=<span class="str">"text"</span>
+  placeholder=<span class="str">"Ex.: Revisar proposta"</span>
+  title=<span class="str">"Nome da tarefa"</span> /&gt;</pre>
+          </div>
+        </div>
+        <div class="card__footer">★ ERRO <span>#10</span> no arquivo · outline:none no CSS · ausência de placeholder nos inputs</div>
+      </article>
+
+    </div><!-- /grid 6-10 -->
+
+    <!-- RODAPÉ DA PÁGINA -->
+    <footer style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border-dim);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-dim)">
+        Nielsen, J. (1994). <em>Usability Engineering</em>. Morgan Kaufmann.
+      </span>
+      <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-dim)">
+        PUC Goiás · Design de Interfaces Web · Material de apoio
+      </span>
+    </footer>
+
+  </main>
+
+</body>
+</html>
