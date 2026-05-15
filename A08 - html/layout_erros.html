@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow — Gerenciador de Projetos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+
+    /* ==========================================================
+       BASE
+    ========================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* ==========================================================
+       ★ ERRO #1 — Layout principal sem CSS Grid.
+       O layout de página (topbar + sidebar + conteúdo + aside)
+       está implementado com float e position: absolute,
+       produzindo sobreposições e quebras em viewports estreitas.
+       Não existe grid-template-areas nem grid-template-columns.
+       Substituir por CSS Grid com áreas nomeadas.
+    ========================================================== */
+    .app-topbar {
+      background: #1e293b;
+      height: 56px;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+    }
+    .app-topbar__logo {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .app-topbar__nav {
+      margin-left: auto;
+      display: flex;
+      gap: 1.5rem;
+    }
+    .app-topbar__nav a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    /* Sidebar com position:absolute — causa o layout quebrado */
+    .app-sidebar {
+      position: absolute;
+      top: 56px;
+      left: 0;
+      width: 220px;
+      min-height: calc(100vh - 56px);
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      padding: 1.5rem 0;
+    }
+    .sidebar__item {
+      display: block;
+      padding: 0.6rem 1.5rem;
+      color: #64748b;
+      font-size: 0.875rem;
+      text-decoration: none;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
+    .sidebar__item:hover  { background: #f8fafc; color: #1e293b; }
+    .sidebar__item.active { background: #eff6ff; color: #2563eb; font-weight: 600; }
+
+    /* Conteúdo principal com margin-left manual — frágil */
+    .app-main {
+      margin-top: 56px;
+      margin-left: 220px;   /* igual à largura da sidebar */
+      padding: 2rem;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* Aside com float — sai do fluxo e quebra em telas menores */
+    .app-aside {
+      float: right;
+      width: 280px;
+      margin-left: 1.5rem;
+    }
+
+    /* Clearfix necessário por causa do float */
+    .app-main::after {
+      content: '';
+      display: table;
+      clear: both;
+    }
+
+    /* ==========================================================
+       ★ ERRO #2 — Grade de métricas sem auto-fill.
+       Os cards de KPI estão dispostos com larguras fixas em
+       pixels (width: 180px) e float, sem CSS Grid auto-fill.
+       Em viewports menores, os cards se sobrepõem ou somem.
+       Substituir por grid com repeat(auto-fill, minmax(...)).
+    ========================================================== */
+    .metrics-row {
+      overflow: hidden; /* necessário para o float */
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      float: left;
+      width: 180px;
+      margin-right: 1rem;
+      margin-bottom: 1rem;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1rem;
+    }
+    .metric-card__label { font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; }
+    .metric-card__value { font-size: 1.75rem; font-weight: 700; color: #1e293b; }
+    .metric-card__delta { font-size: 0.75rem; margin-top: 0.25rem; }
+    .metric-card__delta--up   { color: #16a34a; }
+    .metric-card__delta--down { color: #dc2626; }
+
+    /* ==========================================================
+       ★ ERRO #3 — Flexbox mal configurado na navbar interna.
+       O componente .content-header tenta usar Flexbox para
+       alinhar título e botões, mas usa margin-left: auto no
+       contêiner inteiro em vez de nos itens filhos, e align-items
+       não está definido, causando desalinhamento vertical.
+    ========================================================== */
+    .content-header {
+      display: flex;
+      /* align-items ausente — itens não alinham verticalmente */
+      margin-bottom: 1.5rem;
+      gap: 0.75rem;
+      /* margin-left: auto no container inteiro (erro) —
+         joga o bloco inteiro para a direita */
+      margin-left: auto;
+    }
+    .content-header__title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      /* Sem flex: 1 — o título não cresce para empurrar os botões */
+    }
+
+    /* ==========================================================
+       SEÇÃO DE NOVO PROJETO
+    ========================================================== */
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card__title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .form-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.25rem; flex: 1; min-width: 180px; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: #374151; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 0.5rem 0.75rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: 0.375rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      transition: border-color 150ms, box-shadow 150ms;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .form-hint { font-size: 0.78rem; color: #6b7280; }
+
+    /* ==========================================================
+       ★ ERRO #4 — Sistema de botões sem hierarquia de variantes.
+       Existe apenas uma classe .btn genérica com aparência de
+       botão primário. Não há variantes secundária, ghost nem
+       destrutiva. Todos os botões da interface têm o mesmo
+       visual, independentemente da importância da ação.
+    ========================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1.1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      /* Apenas a variante primária foi implementada */
+      background: #2563eb;
+      color: #ffffff;
+      transition: background 150ms;
+    }
+    .btn:hover { background: #1d4ed8; }
+
+    /* Não existem:
+       .btn-secondary { background: transparent; color: #2563eb; border: ... }
+       .btn-ghost     { background: transparent; color: #64748b; border: ... }
+       .btn-danger    { background: #dc2626; color: #ffffff; }     */
+
+    /* ==========================================================
+       ★ ERRO #5 — Botão sem estados de foco e desabilitado.
+       Não há regra :focus-visible com outline visível —
+       navegação por teclado fica invisível.
+       Não há regra :disabled (ou [aria-disabled]) — botões
+       desabilitados têm a mesma aparência que os ativos.
+    ========================================================== */
+    /* Ausente: .btn:focus-visible { outline: ... } */
+    /* Ausente: .btn:disabled      { opacity: ...; cursor: not-allowed; } */
+
+    /* ==========================================================
+       ★ ERRO #6 — Formulário sem estados visuais de erro.
+       Os campos não possuem classes de estado .form-group--error
+       nem mensagens de erro associadas acessivelmente.
+       Quando a validação falha (função validarForm() no JS),
+       apenas um alert() genérico é exibido, sem feedback
+       visual no campo correspondente.
+    ========================================================== */
+    /* Ausente: .form-group--error .form-input { border-color: #dc2626; }  */
+    /* Ausente: .form-error-msg { color: #dc2626; font-size: ... }         */
+
+    /* ==========================================================
+       LISTA DE PROJETOS
+    ========================================================== */
+    .project-table { width: 100%; border-collapse: collapse; }
+    .project-table th {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      border-bottom: 2px solid #e2e8f0;
+      background: #f8fafc;
+    }
+    .project-table td {
+      padding: 0.75rem;
+      font-size: 0.875rem;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .project-table tr:hover td { background: #f8fafc; }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-active    { background: #dcfce7; color: #166534; }
+    .status-paused    { background: #fef9c3; color: #854d0e; }
+    .status-completed { background: #dbeafe; color: #1e40af; }
+
+    /* ==========================================================
+       ★ ERRO #7 — Alertas sem variantes semânticas.
+       Existe apenas um componente .alert com visual fixo
+       (fundo azul, texto branco). Não há variantes para
+       sucesso, erro e aviso — todos os alertas da interface
+       usam o mesmo visual independentemente da mensagem.
+       Nenhum alerta possui ícone ou borda lateral colorida.
+    ========================================================== */
+    .alert {
+      padding: 0.875rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      /* Apenas a "variante" informativa foi definida */
+      background: #dbeafe;
+      color: #1e40af;
+      /* Sem borda lateral de destaque (border-left) */
+      /* Sem ícone */
+    }
+
+    /* Ausente:
+       .alert-success { background: #f0fdf4; border-left: 4px solid #16a34a; color: #166534; }
+       .alert-error   { background: #fef2f2; border-left: 4px solid #dc2626; color: #991b1b; }
+       .alert-warning { background: #fffbeb; border-left: 4px solid #d97706; color: #92400e; }
+    */
+
+    /* ==========================================================
+       ★ ERRO #8 — Componente Toast inexistente.
+       A função salvarProjeto() no JS exibe um confirm() ao
+       invés de um componente Toast posicionado.
+       Não existe .toast no CSS — nenhum elemento de notificação
+       temporária foi implementado para confirmar a ação.
+    ========================================================== */
+    /* Ausente:
+       .toast { position: fixed; bottom: ...; right: ...; animation: slide-in ... }
+       @keyframes slide-in { ... }
+    */
+
+    /* ==========================================================
+       ★ ERRO #9 — aside com Flexbox mal estruturado.
+       O componente .aside-section usa flex mas sem
+       flex-direction: column e sem gap definido.
+       Os itens internos ficam em linha (comportamento padrão
+       do Flexbox), empilhando-se horizontalmente em vez de
+       verticalmente como um stack de seções.
+    ========================================================== */
+    .aside-section {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      /* flex-direction: column ausente — itens ficam em linha */
+      /* gap ausente — sem espaçamento entre itens filhos */
+    }
+    .aside-section__title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.75rem;
+    }
+    .aside-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.8rem;
+    }
+    .aside-item:last-child { border-bottom: none; }
+    .aside-item__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================================
+       ★ ERRO #10 — Responsividade ausente.
+       Não há nenhuma @media query no arquivo.
+       Em viewports menores (≤ 768px), a sidebar ocupa espaço
+       fixo, o aside flutua, os cards de métrica transbordam
+       e o layout colapsa completamente.
+       É necessário implementar ao menos dois breakpoints.
+    ========================================================== */
+    /* Ausente:
+       @media (max-width: 1024px) { ... }
+       @media (max-width: 768px)  { ... }
+    */
+
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="app-topbar">
+    <span class="app-topbar__logo">TaskFlow</span>
+    <nav class="app-topbar__nav">
+      <a href="#">Dashboard</a>
+      <a href="#">Projetos</a>
+      <a href="#">Equipe</a>
+    </nav>
+  </header>
+
+  <!-- SIDEBAR (position:absolute — ★ ERRO #1) -->
+  <nav class="app-sidebar">
+    <button class="sidebar__item active">Todos os projetos</button>
+    <button class="sidebar__item">Em andamento</button>
+    <button class="sidebar__item">Concluídos</button>
+    <button class="sidebar__item">Arquivados</button>
+    <button class="sidebar__item">Configurações</button>
+  </nav>
+
+  <!-- CONTEÚDO PRINCIPAL (margin-left manual — ★ ERRO #1) -->
+  <div class="app-main">
+
+    <!-- ASIDE com float — ★ ERRO #1 e #9 -->
+    <aside class="app-aside">
+
+      <!-- ★ ERRO #9 — flex sem flex-direction: column -->
+      <div class="aside-section">
+        <div class="aside-section__title">Atividade Recente</div>
+        <div class="aside-item">
+          <span class="aside-item__dot" style="background:#2563eb"></span>
+          <span>Ana criou uma nova tarefa</span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-item__dot" style="background:#16a34a"></span>
+          <span>Bruno concluiu a etapa 3</span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-item__dot" style="background:#d97706"></span>
+          <span>Prazo do Projeto Delta se aproxima</span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-item__dot" style="background:#dc2626"></span>
+          <span>Erro no pipeline de CI/CD</span>
+        </div>
+      </div>
+
+      <div class="aside-section">
+        <div class="aside-section__title">Membros Ativos</div>
+        <div class="aside-item">
+          <span class="aside-item__dot" style="background:#6366f1"></span>
+          <span>Ana Souza</span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-item__dot" style="background:#0891b2"></span>
+          <span>Bruno Carvalho</span>
+        </div>
+        <div class="aside-item">
+          <span class="aside-item__dot" style="background:#d97706"></span>
+          <span>Carla Mendes</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ALERTAS (★ ERRO #7 — sem variantes semânticas) -->
+    <div class="alert">
+      Bem-vindo ao TaskFlow. Nenhum projeto está atrasado esta semana.
+    </div>
+
+    <!-- MÉTRICAS (★ ERRO #2 — float em vez de Grid auto-fill) -->
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-card__label">Projetos ativos</div>
+        <div class="metric-card__value">12</div>
+        <div class="metric-card__delta metric-card__delta--up">↑ 3 este mês</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__label">Tarefas concluídas</div>
+        <div class="metric-card__value">87</div>
+        <div class="metric-card__delta metric-card__delta--up">↑ 12 esta semana</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__label">Em atraso</div>
+        <div class="metric-card__value">4</div>
+        <div class="metric-card__delta metric-card__delta--down">↑ 2 vs. semana anterior</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-card__label">Membros da equipe</div>
+        <div class="metric-card__value">9</div>
+        <div class="metric-card__delta" style="color:#64748b">—</div>
+      </div>
+    </div>
+
+    <!-- CABEÇALHO DE SEÇÃO (★ ERRO #3 — Flexbox mal configurado) -->
+    <div class="content-header">
+      <!-- Título sem flex: 1 — não empurra os botões para a direita -->
+      <h2 class="content-header__title">Projetos</h2>
+
+      <!-- ★ ERRO #4 — todos os botões têm o mesmo visual -->
+      <!-- ★ ERRO #5 — sem estado :focus-visible nem :disabled  -->
+      <button class="btn" onclick="abrirModal()">+ Novo Projeto</button>
+      <button class="btn" onclick="exportar()">Exportar</button>
+      <!-- O botão Exportar deveria ser secundário (ghost), não primário -->
+    </div>
+
+    <!-- TABELA DE PROJETOS -->
+    <div class="card">
+      <table class="project-table" id="project-table">
+        <thead>
+          <tr>
+            <th>Projeto</th>
+            <th>Status</th>
+            <th>Progresso</th>
+            <th>Responsável</th>
+            <th>Prazo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="project-body"></tbody>
+      </table>
+    </div>
+
+    <!-- FORMULÁRIO DE NOVO PROJETO -->
+    <div class="card" id="form-card" style="display:none">
+      <div class="card__title">Novo Projeto</div>
+
+      <!-- ★ ERRO #6 — sem estado visual de erro nos campos -->
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label for="proj-nome">Nome do projeto</label>
+          <input type="text" id="proj-nome" name="nome"
+                 placeholder="Ex.: Redesign do portal" />
+        </div>
+        <div class="form-group">
+          <label for="proj-status">Status</label>
+          <select id="proj-status" name="status">
+            <option value="ativo">Ativo</option>
+            <option value="pausado">Pausado</option>
+            <option value="concluido">Concluído</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="proj-resp">Responsável</label>
+          <input type="text" id="proj-resp" name="responsavel" />
+        </div>
+        <div class="form-group">
+          <label for="proj-prazo">Prazo</label>
+          <input type="text" id="proj-prazo" name="prazo"
+                 placeholder="dd/mm/aaaa" />
+          <!-- ★ ERRO #6 — prazo como type="text" sem validação -->
+        </div>
+        <div class="form-group">
+          <label for="proj-prog">Progresso (%)</label>
+          <input type="number" id="proj-prog" name="progresso"
+                 min="0" max="100" value="0" />
+        </div>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; margin-top:0.5rem">
+        <!-- ★ ERRO #4 — botão Cancelar deveria ser ghost/secondary -->
+        <button class="btn" onclick="salvarProjeto()">Salvar</button>
+        <button class="btn" onclick="fecharForm()">Cancelar</button>
+      </div>
+    </div>
+
+  </div><!-- /.app-main -->
+
+  <!-- ★ ERRO #8 — Toast inexistente; o JS usa confirm() no lugar -->
+
+  <script>
+    /* ── Dados iniciais ──────────────────────────────────────── */
+    let projetos = [
+      { id:1, nome:"Portal Institucional",  status:"ativo",     prog:65, resp:"Ana Souza",     prazo:"30/06/2025" },
+      { id:2, nome:"App Mobile v2",         status:"ativo",     prog:42, resp:"Bruno Carvalho", prazo:"15/08/2025" },
+      { id:3, nome:"Redesign de Dashboard", status:"pausado",   prog:20, resp:"Carla Mendes",  prazo:"01/09/2025" },
+      { id:4, nome:"API de Integração",     status:"concluido", prog:100, resp:"Ana Souza",    prazo:"10/04/2025" },
+    ];
+    let nextId = 5;
+
+    /* ── Renderização ────────────────────────────────────────── */
+    function renderTabela() {
+      const tbody = document.getElementById("project-body");
+      tbody.innerHTML = "";
+      projetos.forEach(p => {
+        const statusClass = { ativo:"status-active", pausado:"status-paused", concluido:"status-completed" }[p.status] || "";
+        const statusLabel = { ativo:"Ativo", pausado:"Pausado", concluido:"Concluído" }[p.status] || p.status;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.nome}</td>
+          <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+          <td>
+            <div style="background:#e2e8f0;border-radius:999px;height:6px;width:100%;max-width:120px">
+              <div style="background:#2563eb;border-radius:999px;height:6px;width:${p.prog}%"></div>
+            </div>
+            <span style="font-size:0.75rem;color:#64748b;margin-top:2px;display:block">${p.prog}%</span>
+          </td>
+          <td>${p.resp}</td>
+          <td>${p.prazo}</td>
+          <td style="display:flex;gap:0.5rem;padding-top:0.6rem">
+            <button class="btn" style="font-size:0.78rem;padding:0.3rem 0.6rem"
+              onclick="excluirProjeto(${p.id})">Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ── Formulário ──────────────────────────────────────────── */
+    function abrirModal() {
+      document.getElementById("form-card").style.display = "block";
+    }
+    function fecharForm() {
+      document.getElementById("form-card").style.display = "none";
+      limparForm();
+    }
+
+    /* ★ ERRO #6 — validação com alert() em vez de feedback visual */
+    function validarForm() {
+      const nome = document.getElementById("proj-nome").value.trim();
+      const resp = document.getElementById("proj-resp").value.trim();
+      if (!nome) { alert("Informe o nome do projeto."); return false; }
+      if (!resp) { alert("Informe o responsável."); return false; }
+      return true;
+    }
+
+    /* ★ ERRO #8 — confirm() no lugar de Toast */
+    function salvarProjeto() {
+      if (!validarForm()) return;
+      const novo = {
+        id:   nextId++,
+        nome: document.getElementById("proj-nome").value.trim(),
+        status: document.getElementById("proj-status").value,
+        prog: parseInt(document.getElementById("proj-prog").value) || 0,
+        resp: document.getElementById("proj-resp").value.trim(),
+        prazo: document.getElementById("proj-prazo").value || "—",
+      };
+      projetos.push(novo);
+      renderTabela();
+      fecharForm();
+      /* ★ ERRO #8 — deveria exibir um Toast; usa confirm() no lugar */
+      confirm("Projeto salvo. (Aqui deveria aparecer um toast de confirmação.)");
+    }
+
+    function limparForm() {
+      document.getElementById("proj-nome").value  = "";
+      document.getElementById("proj-resp").value  = "";
+      document.getElementById("proj-prazo").value = "";
+      document.getElementById("proj-prog").value  = "0";
+    }
+
+    /* Excluir sem confirmação — intencionalmente simples */
+    function excluirProjeto(id) {
+      projetos = projetos.filter(p => p.id !== id);
+      renderTabela();
+    }
+
+    function exportar() {
+      alert("Exportação não implementada neste protótipo.");
+    }
+
+    /* ── Init ────────────────────────────────────────────────── */
+    renderTabela();
+  </script>
+</body>
+</html>
