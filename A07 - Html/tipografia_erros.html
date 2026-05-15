@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DesignLab — Blog de Design de Sistemas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+
+    /* ============================================================
+       ★ ERRO #4 — ausência de CSS Custom Properties (design tokens).
+       Todos os valores de cor, tamanho e espaçamento estão
+       literais e espalhados pelo CSS. Qualquer alteração de tema
+       exige busca manual em dezenas de declarações.
+       Não há um :root com variáveis centralizadas.
+    ============================================================ */
+    
+    
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+
+      /* ★ ERRO #9 — modo escuro sobrescreve apenas o background,
+         mas mantém o texto em cor escura, tornando o conteúdo
+         ilegível quando o sistema operacional usa dark mode.
+         A regra @media abaixo demonstra o problema. */
+      background: #ffffff;
+      color: #1e293b;
+    }
+
+    /* ★ ERRO #9 — dark mode incompleto: apenas background muda */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #0f172a;
+        /* color não foi redefinida — texto escuro sobre fundo escuro */
+      }
+    }
+
+    /* ============================================================
+       TOPBAR
+    ============================================================ */
+    .topbar {
+      background: #1a56db;
+      padding: 0 40px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar__logo {
+      font-weight: 700;
+      /* ★ ERRO #8 — logo usa tamanho fora da escala modular */
+      font-size: 17px;
+      color: #ffffff;
+    }
+    .topbar__nav { display: flex; gap: 28px; }
+    .topbar__nav a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      /* ★ ERRO #8 — tamanho fora da escala modular */
+      font-size: 13px;
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .layout {
+      /* ★ ERRO #7 — container sem largura máxima definida,
+         permitindo que as linhas de texto se estendam além de
+         ~75 caracteres em viewports largas, prejudicando a
+         legibilidade. Em monitores >1280px, parágrafos atingem
+         facilmente 120+ caracteres por linha. */
+      max-width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 40px;
+      padding: 48px 40px;
+    }
+
+    /* ============================================================
+       TIPOGRAFIA — ESCALA E HIERARQUIA
+    ============================================================ */
+
+    /* ★ ERRO #1 — escala tipográfica sem razão modular.
+       Os tamanhos foram definidos arbitrariamente, sem seguir
+       nenhuma proporção (Major Third 1.25, Perfect Fourth 1.333,
+       Golden Ratio 1.618 etc.).
+       Resultado: a hierarquia visual entre níveis é fraca e
+       inconsistente — h2 e h3 são quase indistinguíveis. */
+
+    /* ★ ERRO #8 — hierarquia visual quebrada entre headings:
+       h1, h2 e h3 têm tamanhos tão próximos que não comunicam
+       níveis distintos de importância ao leitor. */
+    h1 { font-size: 26px; font-weight: 700; color: #0f172a; }
+    h2 { font-size: 20px; font-weight: 600; color: #1e293b; }
+    h3 { font-size: 18px; font-weight: 600; color: #334155; }
+    h4 { font-size: 17px; font-weight: 500; color: #475569; }
+
+    /* ★ ERRO #6 — line-height muito apertado para texto de corpo.
+       O valor 1.1 produz linhas visualmente coladas, prejudicando
+       a legibilidade em parágrafos longos. O valor recomendado
+       para body text varia entre 1.5 e 1.75. */
+    p {
+      font-size: 15px;
+      line-height: 1.1;
+      color: #334155;
+      margin-bottom: 16px;
+    }
+
+    /* ★ ERRO #2 — contraste insuficiente (WCAG AA).
+       Texto de metadados em #a0aec0 sobre fundo branco #ffffff.
+       Razão de contraste: ~2.5:1 — abaixo do mínimo de 4.5:1
+       para texto normal e 3:1 para texto grande. */
+    .meta {
+      font-size: 13px;
+      color: #a0aec0;
+      margin-bottom: 16px;
+    }
+
+    /* ============================================================
+       HERO DO ARTIGO
+    ============================================================ */
+    .article-hero {
+      background: #1a56db;
+      border-radius: 12px;
+      /* ★ ERRO #5 — espaçamento fora da base 4px.
+         O padding usa valores que não são múltiplos de 4:
+         37px (vertical) e 45px (horizontal).
+         Um sistema base-4 usaria 36px (9×4) ou 40px (10×4). */
+      padding: 37px 45px;
+      margin-bottom: 29px;
+    }
+    .article-hero h1 {
+      color: #ffffff;
+      font-size: 26px;
+      margin-bottom: 11px; /* ★ ERRO #5 — 11px não é múltiplo de 4 */
+    }
+
+    /* ★ ERRO #3 — contraste insuficiente em texto sobre cor.
+       Texto em #e2e8f0 sobre fundo azul #1a56db.
+       Razão de contraste: ~2.9:1 — falha WCAG AA (mínimo 4.5:1).
+       Para atender AA, o texto claro sobre este azul precisa
+       ser #ffffff (contraste ~5.0:1) ou o azul deve ser mais escuro. */
+    .article-hero .meta {
+      color: #e2e8f0;
+      font-size: 13px;
+    }
+
+    /* ============================================================
+       CONTEÚDO DO ARTIGO
+    ============================================================ */
+    .article-content h2 {
+      /* ★ ERRO #5 — margens com valores fora da base 4px */
+      margin-top: 29px;
+      margin-bottom: 11px;
+    }
+    .article-content h3 {
+      margin-top: 22px; /* múltiplo de 4? sim; mas h2 usa 29px */
+      margin-bottom: 9px; /* ★ ERRO #5 — 9px não é múltiplo de 4 */
+    }
+
+    /* ============================================================
+       TAGS DE CATEGORIA
+    ============================================================ */
+
+    /* ★ ERRO #10 — cor como único meio de diferenciação.
+       As tags de categoria diferenciam-se exclusivamente pela
+       cor do badge, sem rótulo de texto, ícone ou padrão visual
+       adicional. Viola WCAG 1.4.1 (Use of Color): a informação
+       sobre a categoria não pode depender apenas da cor para
+       ser percebida. Usuários com daltonismo não conseguem
+       distinguir as categorias. */
+    .tag {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    .tag--tipografia  { background: #6366f1; }
+    .tag--contraste   { background: #f59e0b; }
+    .tag--espacamento { background: #10b981; }
+    .tag--acessib     { background: #ef4444; }
+
+    .tag-label {
+      /* ★ ERRO #2 — rótulo de tag com contraste insuficiente */
+      color: #a0aec0;
+      font-size: 12px;
+    }
+
+    /* ============================================================
+       BLOCKQUOTE
+    ============================================================ */
+    blockquote {
+      border-left: 4px solid #1a56db;
+      /* ★ ERRO #5 — padding com valores fora da base 4px */
+      padding: 13px 18px;
+      margin: 22px 0;
+      background: #f8fafc;
+      border-radius: 0 8px 8px 0;
+    }
+    blockquote p {
+      font-style: italic;
+      color: #475569;
+      margin: 0;
+    }
+
+    /* ============================================================
+       CARDS DE ARTIGOS RELACIONADOS (SIDEBAR)
+    ============================================================ */
+    .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+    .related-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      /* ★ ERRO #5 — padding com valor fora da base 4px */
+      padding: 14px;
+    }
+    .related-card__title {
+      /* ★ ERRO #1 — tamanho fora da escala modular */
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 6px; /* ★ ERRO #5 — 6px não é múltiplo de 4 */
+    }
+    .related-card__desc {
+      font-size: 12px;
+      /* ★ ERRO #2 — contraste insuficiente: #94a3b8 sobre #f8fafc
+         razão de contraste: ~2.3:1 */
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    /* ============================================================
+       INDICADORES DE ESCALA (LEGENDA VISUAL)
+    ============================================================ */
+    .scale-demo {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .scale-demo__title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    /* ★ ERRO #1 — escala sem razão: 11, 13, 15, 18, 22, 28, 36
+       (diferenças: 2, 2, 3, 4, 6, 8 — sem proporção constante) */
+    .size-xs  { font-size: 11px; line-height: 1.5; margin-bottom: 8px; }
+    .size-sm  { font-size: 13px; line-height: 1.5; margin-bottom: 8px; }
+    .size-md  { font-size: 15px; line-height: 1.5; margin-bottom: 8px; }
+    .size-lg  { font-size: 18px; line-height: 1.5; margin-bottom: 8px; }
+    .size-xl  { font-size: 22px; line-height: 1.5; margin-bottom: 8px; }
+    .size-2xl { font-size: 28px; line-height: 1.5; margin-bottom: 8px; }
+    .size-3xl { font-size: 36px; line-height: 1.3; }
+
+    /* ============================================================
+       TABELA DE CONTRASTE
+    ============================================================ */
+    .contrast-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    .contrast-table th, .contrast-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 14px;
+    }
+    .contrast-table th { background: #f8fafc; font-weight: 600; color: #1e293b; }
+    /* ★ ERRO #3 — célula com fundo colorido e texto de baixo contraste */
+    .contrast-fail { background: #6fa8dc; color: #ffffff; }
+    /* razão: ~2.5:1 — falha WCAG AA */
+
+    /* ============================================================
+       RODAPÉ
+    ============================================================ */
+    footer {
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      /* ★ ERRO #5 — padding fora da base 4px */
+      padding: 38px 40px;
+      text-align: center;
+    }
+    footer p {
+      /* ★ ERRO #2 — contraste insuficiente no rodapé */
+      color: #b0bec5;
+      font-size: 13px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <span class="topbar__logo">DesignLab</span>
+    <nav class="topbar__nav">
+      <a href="#">Artigos</a>
+      <a href="#">Ferramentas</a>
+      <a href="#">Sobre</a>
+    </nav>
+  </header>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <div class="layout">
+
+    <!-- ARTIGO PRINCIPAL -->
+    <main>
+
+      <!-- Hero -->
+      <div class="article-hero">
+        <!-- ★ ERRO #8 — h1 visualmente próximo dos h2 abaixo,
+             sem distinção clara de hierarquia -->
+        <h1>Sistemas Tipográficos em Interfaces Web</h1>
+        <p class="meta">
+          <!-- ★ ERRO #10 — categorias diferenciadas apenas por cor -->
+          <span class="tag tag--tipografia" title="Tipografia"></span>
+          <span class="tag tag--contraste" title="Contraste"></span>
+          Por Rafael Leal Martins · 12 de maio de 2025 · 8 min de leitura
+        </p>
+      </div>
+
+      <!-- Escala Tipográfica -->
+      <section class="article-content">
+
+        <h2>O que é uma Escala Tipográfica Modular?</h2>
+
+        <!-- ★ ERRO #6 — line-height 1.1 torna este parágrafo
+             difícil de ler em blocos longos de texto corrido -->
+        <p>Uma escala tipográfica modular é um sistema em que cada tamanho de fonte é calculado a partir de um valor base e de uma razão fixa entre os degraus da escala. Ao contrário de escolhas arbitrárias de tamanho, uma escala modular garante harmonia visual e consistência ao longo de toda a interface. Os valores mais comuns de razão incluem Major Second (1.125), Major Third (1.25), Perfect Fourth (1.333) e Golden Ratio (1.618).</p>
+
+        <p>A escolha da razão deve ser orientada pelo contexto de uso: razões menores produzem escalas mais compactas, adequadas a interfaces densas como dashboards e tabelas de dados; razões maiores geram contrastes tipográficos mais expressivos, mais indicados para sites editoriais e de marketing.</p>
+
+        <!-- Demonstração visual da escala (com erro intencional) -->
+        <div class="scale-demo">
+          <div class="scale-demo__title">Escala atual do sistema (verificar a razão)</div>
+          <div class="size-3xl">Design Systems</div>
+          <div class="size-2xl">Tipografia Modular</div>
+          <div class="size-xl">Escala e Hierarquia</div>
+          <div class="size-lg">Contraste e Legibilidade</div>
+          <div class="size-md">Texto de corpo — parágrafo padrão</div>
+          <div class="size-sm">Metadados, rótulos e legendas</div>
+          <div class="size-xs">Texto auxiliar e notas de rodapé</div>
+        </div>
+
+        <h3>Como calcular uma escala modular</h3>
+
+        <p>Para construir uma escala modular, define-se um tamanho base (geralmente 1rem = 16px) e uma razão. Cada passo acima do base é calculado pela fórmula: tamanho = base × razão^n, onde n é a posição na escala. Por exemplo, com base de 1rem e razão 1.25 (Major Third), os degraus seriam: 0.64rem, 0.8rem, 1rem, 1.25rem, 1.563rem, 1.953rem, 2.441rem e 3.052rem.</p>
+
+        <blockquote>
+          <p>A tipografia é a fundação silenciosa de todo sistema visual. Quando funciona bem, o usuário não a percebe — apenas lê com fluidez e compreende sem esforço.</p>
+        </blockquote>
+
+        <h2>Contraste e as Diretrizes WCAG</h2>
+
+        <p>O WCAG 2.1 define critérios objetivos de contraste entre texto e fundo. O nível AA — exigido pela maioria das políticas de acessibilidade — requer razão mínima de 4.5:1 para texto normal e 3:1 para texto grande (acima de 18pt ou 14pt negrito). O nível AAA eleva esses valores para 7:1 e 4.5:1, respectivamente.</p>
+
+        <!-- Tabela de contraste com erro intencional -->
+        <table class="contrast-table">
+          <thead>
+            <tr>
+              <th>Combinação</th>
+              <th>Razão</th>
+              <th>Nível WCAG</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#0f172a sobre #ffffff</td>
+              <td>19.6:1</td>
+              <td>AAA ✓</td>
+            </tr>
+            <!-- ★ ERRO #3 — esta célula tem contraste insuficiente -->
+            <tr class="contrast-fail">
+              <td>#ffffff sobre #6fa8dc</td>
+              <td>2.5:1</td>
+              <td>Falha ✗</td>
+            </tr>
+            <tr>
+              <td>#334155 sobre #ffffff</td>
+              <td>8.7:1</td>
+              <td>AAA ✓</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Ferramentas de verificação de contraste</h3>
+
+        <p>Existem diversas ferramentas gratuitas para verificação de contraste. O WebAIM Contrast Checker permite inserir cores em hexadecimal e retorna a razão calculada com indicação dos níveis AA e AAA. O plugin Stark para Figma integra a verificação diretamente ao fluxo de design. O DevTools do Chrome oferece a razão de contraste ao inspecionar qualquer elemento de texto.</p>
+
+        <h2>Sistema de Espaçamento em Base 4px</h2>
+
+        <p>Um sistema de espaçamento consistente é tão importante quanto a escala tipográfica. A base de 4px tornou-se padrão na indústria porque é o menor valor perceptível na maioria dos monitores e resulta em múltiplos que mapeiam bem para os tamanhos de fonte mais comuns. Com uma base de 4px, os valores de espaçamento da escala seriam: 4px, 8px, 12px, 16px, 24px, 32px, 48px, 64px e 96px.</p>
+
+        <!-- ★ ERRO #10 — legenda de categorias usa apenas cor para diferenciar -->
+        <div class="meta" style="margin-top: 24px;">
+          Categorias deste artigo:
+          <span class="tag tag--tipografia"></span><span class="tag-label">?</span>
+          <span class="tag tag--espacamento"></span><span class="tag-label">?</span>
+          <span class="tag tag--acessib"></span><span class="tag-label">?</span>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <h4>Artigos Relacionados</h4>
+
+      <div class="related-card">
+        <div class="related-card__title">Introdução ao Design de Tokens</div>
+        <!-- ★ ERRO #2 — descrição com contraste insuficiente -->
+        <p class="related-card__desc">Como centralizar valores de design em variáveis CSS e garantir consistência entre temas.</p>
+      </div>
+
+      <div class="related-card">
+        <div class="related-card__title">CSS Custom Properties na Prática</div>
+        <p class="related-card__desc">Utilizando variáveis nativas do CSS para construir sistemas de design escaláveis e mantíveis.</p>
+      </div>
+
+      <div class="related-card">
+        <div class="related-card__title">Acessibilidade para Desenvolvedores</div>
+        <p class="related-card__desc">Guia prático de WCAG 2.1 com exemplos de código e ferramentas de verificação automatizada.</p>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- RODAPÉ -->
+  <footer>
+    <!-- ★ ERRO #2 — contraste insuficiente no rodapé -->
+    <p>© 2025 DesignLab · Todos os direitos reservados · Disciplina de Design de Interfaces Web · PUC Goiás</p>
+  </footer>
+
+</body>
+</html>

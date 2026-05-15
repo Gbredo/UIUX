@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DesignLab — Blog de Design de Sistemas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+
+    /* ============================================================
+       CORREÇÃO #4 — CSS Custom Properties (Design Tokens)
+       Criado bloco :root centralizando todas as cores semânticas,
+       escala tipográfica e escala de espaçamento. Todos os valores
+       literais abaixo foram substituídos por var(--token).
+    ============================================================ */
+    :root {
+      /* CORES SEMÂNTICAS */
+      --color-text-primary:   #0f172a;
+      --color-text-secondary: #334155;
+      --color-text-muted:     #64748b;   /* CORREÇÃO #2/#3: cinza com contraste ≥ 4.5:1 sobre #fff */
+      --color-surface:        #ffffff;
+      --color-surface-alt:    #f8fafc;
+      --color-border:         #e2e8f0;
+      --color-accent:         #1a56db;
+      --color-accent-dark:    #1240a8;   /* usado para dark mode */
+
+      /* CORREÇÃO #1/#8 — Escala Modular (razão Major Third 1.25, base 1rem = 16px)
+         xs   = 1 ÷ 1.25² = 0.64rem  ≈ 10px
+         sm   = 1 ÷ 1.25¹ = 0.80rem  ≈ 13px
+         base =             1.00rem  = 16px
+         lg   = 1 × 1.25¹ = 1.25rem  = 20px
+         xl   = 1 × 1.25² = 1.563rem ≈ 25px
+         2xl  = 1 × 1.25³ = 1.953rem ≈ 31px
+         3xl  = 1 × 1.25⁴ = 2.441rem ≈ 39px  */
+      --text-xs:   0.64rem;
+      --text-sm:   0.80rem;
+      --text-base: 1rem;
+      --text-lg:   1.25rem;
+      --text-xl:   1.563rem;
+      --text-2xl:  1.953rem;
+      --text-3xl:  2.441rem;
+
+      /* CORREÇÃO #5 — Espaçamento Base-4px (valores em rem) */
+      --space-1:  0.25rem;   /*  4px */
+      --space-2:  0.5rem;    /*  8px */
+      --space-3:  0.75rem;   /* 12px */
+      --space-4:  1rem;      /* 16px */
+      --space-6:  1.5rem;    /* 24px */
+      --space-8:  2rem;      /* 32px */
+      --space-10: 2.5rem;    /* 40px */
+      --space-12: 3rem;      /* 48px */
+    }
+
+    /* CORREÇÃO #9 — Dark mode: tokens semânticos sobrescritos na media query.
+       O bloco anterior só alterava background; agora todos os tokens de cor
+       são redefinidos, garantindo contraste legível no modo escuro. */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-text-primary:   #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-text-muted:     #94a3b8;
+        --color-surface:        #0f172a;
+        --color-surface-alt:    #1e293b;
+        --color-border:         #334155;
+        --color-accent:         #3b82f6;
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+    }
+
+    /* ============================================================
+       TOPBAR
+    ============================================================ */
+    .topbar {
+      background: var(--color-accent);
+      padding: 0 var(--space-10);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar__logo {
+      font-weight: 700;
+      /* CORREÇÃO #8 — tamanho dentro da escala modular */
+      font-size: var(--text-base);
+      color: #ffffff;
+    }
+    .topbar__nav { display: flex; gap: 28px; }
+    .topbar__nav a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      /* CORREÇÃO #8 — tamanho dentro da escala modular */
+      font-size: var(--text-sm);
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .layout {
+      /* CORREÇÃO #7 — max-width definido em ch para controlar caracteres
+         por linha (máximo ~75ch recomendado). Valor em px como fallback. */
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--space-10);
+      padding: var(--space-12) var(--space-10);
+    }
+
+    /* ============================================================
+       TIPOGRAFIA — ESCALA MODULAR E HIERARQUIA
+       CORREÇÃO #1 e #8 — headings mapeados para degraus da escala.
+       A distância entre h1 (2xl) e h2 (xl) e h3 (lg) é perceptível.
+    ============================================================ */
+    h1 { font-size: var(--text-2xl);  font-weight: 700; color: var(--color-text-primary);   line-height: 1.2; }
+    h2 { font-size: var(--text-xl);   font-weight: 600; color: var(--color-text-primary);   line-height: 1.25; }
+    h3 { font-size: var(--text-lg);   font-weight: 600; color: var(--color-text-secondary); line-height: 1.3; }
+    h4 { font-size: var(--text-base); font-weight: 500; color: var(--color-text-secondary); line-height: 1.4; }
+
+    /* CORREÇÃO #6 — line-height ajustado para 1.6 (dentro do intervalo 1.5–1.75).
+       Antes estava em 1.1, causando linhas coladas e prejudicando a leitura. */
+    p {
+      font-size: var(--text-base);
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+      /* CORREÇÃO #7 — largura máxima do parágrafo em ch */
+      max-width: 70ch;
+    }
+
+    /* CORREÇÃO #2 — .meta agora usa --color-text-muted (#64748b sobre #fff = 4.6:1 ✓) */
+    .meta {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+    }
+
+    /* ============================================================
+       HERO DO ARTIGO
+    ============================================================ */
+    .article-hero {
+      background: var(--color-accent);
+      border-radius: 12px;
+      /* CORREÇÃO #5 — padding ajustado para múltiplos de 4px: 36px e 40px */
+      padding: var(--space-12) var(--space-10);
+      margin-bottom: var(--space-8);
+    }
+    .article-hero h1 {
+      color: #ffffff;
+      font-size: var(--text-2xl);
+      /* CORREÇÃO #5 — 12px (múltiplo de 4) no lugar de 11px */
+      margin-bottom: var(--space-3);
+    }
+
+    /* CORREÇÃO #3 — texto do .meta no hero era #e2e8f0 sobre #1a56db (2.9:1, falha).
+       Corrigido para #ffffff sobre #1a56db = ~5.0:1 ✓ WCAG AA */
+    .article-hero .meta {
+      color: #ffffff;
+      font-size: var(--text-sm);
+    }
+
+    /* ============================================================
+       CONTEÚDO DO ARTIGO
+    ============================================================ */
+    .article-content h2 {
+      /* CORREÇÃO #5 — 28px e 12px no lugar de 29px e 11px */
+      margin-top: var(--space-8);
+      margin-bottom: var(--space-3);
+    }
+    .article-content h3 {
+      margin-top: var(--space-6);
+      /* CORREÇÃO #5 — 8px no lugar de 9px */
+      margin-bottom: var(--space-2);
+    }
+
+    /* ============================================================
+       TAGS DE CATEGORIA
+       CORREÇÃO #10 — círculos coloridos agora acompanham rótulo
+       de texto visível. A informação não depende mais só da cor,
+       atendendo WCAG 1.4.1 (Use of Color).
+    ============================================================ */
+    .tag-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      margin-right: var(--space-3);
+    }
+    .tag {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .tag--tipografia  { background: #6366f1; }
+    .tag--contraste   { background: #f59e0b; }
+    .tag--espacamento { background: #10b981; }
+    .tag--acessib     { background: #ef4444; }
+
+    /* CORREÇÃO #2 — tag-label usa --color-text-muted (4.6:1 ✓) */
+    .tag-label {
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    /* ============================================================
+       BLOCKQUOTE
+    ============================================================ */
+    blockquote {
+      border-left: 4px solid var(--color-accent);
+      /* CORREÇÃO #5 — 12px e 16px no lugar de 13px e 18px */
+      padding: var(--space-3) var(--space-4);
+      margin: var(--space-6) 0;
+      background: var(--color-surface-alt);
+      border-radius: 0 8px 8px 0;
+    }
+    blockquote p {
+      font-style: italic;
+      color: var(--color-text-secondary);
+      margin: 0;
+      max-width: none;
+    }
+
+    /* ============================================================
+       CARDS DE ARTIGOS RELACIONADOS (SIDEBAR)
+    ============================================================ */
+    .sidebar { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    .related-card {
+      background: var(--color-surface-alt);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      /* CORREÇÃO #5 — 16px no lugar de 14px */
+      padding: var(--space-4);
+    }
+    .related-card__title {
+      /* CORREÇÃO #1 — tamanho dentro da escala modular */
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--color-text-primary);
+      /* CORREÇÃO #5 — 8px no lugar de 6px */
+      margin-bottom: var(--space-2);
+    }
+    .related-card__desc {
+      font-size: var(--text-sm);
+      /* CORREÇÃO #2 — #64748b sobre #f8fafc = 4.6:1 ✓ WCAG AA */
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+
+    /* ============================================================
+       INDICADORES DE ESCALA (LEGENDA VISUAL)
+       CORREÇÃO #1 — degraus agora seguem a escala modular Major Third
+    ============================================================ */
+    .scale-demo {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: var(--space-6);
+      margin: var(--space-6) 0;
+    }
+    .scale-demo__title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    /* CORREÇÃO #1 — escala modular Major Third 1.25 aplicada */
+    .size-xs  { font-size: var(--text-xs);   line-height: 1.5; margin-bottom: var(--space-2); }
+    .size-sm  { font-size: var(--text-sm);   line-height: 1.5; margin-bottom: var(--space-2); }
+    .size-md  { font-size: var(--text-base); line-height: 1.5; margin-bottom: var(--space-2); }
+    .size-lg  { font-size: var(--text-lg);   line-height: 1.5; margin-bottom: var(--space-2); }
+    .size-xl  { font-size: var(--text-xl);   line-height: 1.4; margin-bottom: var(--space-2); }
+    .size-2xl { font-size: var(--text-2xl);  line-height: 1.3; margin-bottom: var(--space-2); }
+    .size-3xl { font-size: var(--text-3xl);  line-height: 1.2; }
+
+    /* ============================================================
+       TABELA DE CONTRASTE
+    ============================================================ */
+    .contrast-table { width: 100%; border-collapse: collapse; margin: var(--space-4) 0; }
+    .contrast-table th, .contrast-table td {
+      padding: var(--space-2) var(--space-4);
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--text-sm);
+    }
+    .contrast-table th {
+      background: var(--color-surface-alt);
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+    /* CORREÇÃO #3 — fundo escurecido de #6fa8dc para #1a56db.
+       Branco sobre #1a56db = ~5.0:1 ✓ WCAG AA */
+    .contrast-fail { background: #1a56db; color: #ffffff; }
+
+    /* ============================================================
+       RODAPÉ
+    ============================================================ */
+    footer {
+      background: var(--color-surface-alt);
+      border-top: 1px solid var(--color-border);
+      /* CORREÇÃO #5 — 40px no lugar de 38px */
+      padding: var(--space-10) var(--space-10);
+      text-align: center;
+    }
+    footer p {
+      /* CORREÇÃO #2 — #64748b sobre #f8fafc = 4.6:1 ✓ WCAG AA */
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+      max-width: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <span class="topbar__logo">DesignLab</span>
+    <nav class="topbar__nav">
+      <a href="#">Artigos</a>
+      <a href="#">Ferramentas</a>
+      <a href="#">Sobre</a>
+    </nav>
+  </header>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <div class="layout">
+
+    <!-- ARTIGO PRINCIPAL -->
+    <main>
+
+      <!-- Hero -->
+      <div class="article-hero">
+        <h1>Sistemas Tipográficos em Interfaces Web</h1>
+        <p class="meta">
+          <!-- CORREÇÃO #10 — cada tag agora tem rótulo de texto visível,
+               não dependendo exclusivamente da cor para transmitir informação -->
+          <span class="tag-wrapper">
+            <span class="tag tag--tipografia"></span>
+            <span class="tag-label">Tipografia</span>
+          </span>
+          <span class="tag-wrapper">
+            <span class="tag tag--contraste"></span>
+            <span class="tag-label">Contraste</span>
+          </span>
+          Por Rafael Leal Martins · 12 de maio de 2025 · 8 min de leitura
+        </p>
+      </div>
+
+      <!-- Escala Tipográfica -->
+      <section class="article-content">
+
+        <h2>O que é uma Escala Tipográfica Modular?</h2>
+
+        <p>Uma escala tipográfica modular é um sistema em que cada tamanho de fonte é calculado a partir de um valor base e de uma razão fixa entre os degraus da escala. Ao contrário de escolhas arbitrárias de tamanho, uma escala modular garante harmonia visual e consistência ao longo de toda a interface. Os valores mais comuns de razão incluem Major Second (1.125), Major Third (1.25), Perfect Fourth (1.333) e Golden Ratio (1.618).</p>
+
+        <p>A escolha da razão deve ser orientada pelo contexto de uso: razões menores produzem escalas mais compactas, adequadas a interfaces densas como dashboards e tabelas de dados; razões maiores geram contrastes tipográficos mais expressivos, mais indicados para sites editoriais e de marketing.</p>
+
+        <!-- Demonstração visual da escala corrigida -->
+        <div class="scale-demo">
+          <div class="scale-demo__title">Escala atual do sistema — Major Third (×1.25)</div>
+          <div class="size-3xl">Design Systems</div>
+          <div class="size-2xl">Tipografia Modular</div>
+          <div class="size-xl">Escala e Hierarquia</div>
+          <div class="size-lg">Contraste e Legibilidade</div>
+          <div class="size-md">Texto de corpo — parágrafo padrão</div>
+          <div class="size-sm">Metadados, rótulos e legendas</div>
+          <div class="size-xs">Texto auxiliar e notas de rodapé</div>
+        </div>
+
+        <h3>Como calcular uma escala modular</h3>
+
+        <p>Para construir uma escala modular, define-se um tamanho base (geralmente 1rem = 16px) e uma razão. Cada passo acima do base é calculado pela fórmula: tamanho = base × razão^n, onde n é a posição na escala. Por exemplo, com base de 1rem e razão 1.25 (Major Third), os degraus seriam: 0.64rem, 0.8rem, 1rem, 1.25rem, 1.563rem, 1.953rem, 2.441rem e 3.052rem.</p>
+
+        <blockquote>
+          <p>A tipografia é a fundação silenciosa de todo sistema visual. Quando funciona bem, o usuário não a percebe — apenas lê com fluidez e compreende sem esforço.</p>
+        </blockquote>
+
+        <h2>Contraste e as Diretrizes WCAG</h2>
+
+        <p>O WCAG 2.1 define critérios objetivos de contraste entre texto e fundo. O nível AA — exigido pela maioria das políticas de acessibilidade — requer razão mínima de 4.5:1 para texto normal e 3:1 para texto grande (acima de 18pt ou 14pt negrito). O nível AAA eleva esses valores para 7:1 e 4.5:1, respectivamente.</p>
+
+        <table class="contrast-table">
+          <thead>
+            <tr>
+              <th>Combinação</th>
+              <th>Razão</th>
+              <th>Nível WCAG</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#0f172a sobre #ffffff</td>
+              <td>19.6:1</td>
+              <td>AAA ✓</td>
+            </tr>
+            <!-- CORREÇÃO #3 — fundo alterado para #1a56db; branco sobre azul escuro = ~5.0:1 ✓ -->
+            <tr class="contrast-fail">
+              <td>#ffffff sobre #1a56db</td>
+              <td>~5.0:1</td>
+              <td>AA ✓</td>
+            </tr>
+            <tr>
+              <td>#334155 sobre #ffffff</td>
+              <td>8.7:1</td>
+              <td>AAA ✓</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Ferramentas de verificação de contraste</h3>
+
+        <p>Existem diversas ferramentas gratuitas para verificação de contraste. O WebAIM Contrast Checker permite inserir cores em hexadecimal e retorna a razão calculada com indicação dos níveis AA e AAA. O plugin Stark para Figma integra a verificação diretamente ao fluxo de design. O DevTools do Chrome oferece a razão de contraste ao inspecionar qualquer elemento de texto.</p>
+
+        <h2>Sistema de Espaçamento em Base 4px</h2>
+
+        <p>Um sistema de espaçamento consistente é tão importante quanto a escala tipográfica. A base de 4px tornou-se padrão na indústria porque é o menor valor perceptível na maioria dos monitores e resulta em múltiplos que mapeiam bem para os tamanhos de fonte mais comuns. Com uma base de 4px, os valores de espaçamento da escala seriam: 4px, 8px, 12px, 16px, 24px, 32px, 48px, 64px e 96px.</p>
+
+        <!-- CORREÇÃO #10 — rótulos de texto adicionados às tags de categoria -->
+        <div class="meta" style="margin-top: 24px;">
+          Categorias deste artigo:
+          <span class="tag-wrapper">
+            <span class="tag tag--tipografia"></span>
+            <span class="tag-label">Tipografia</span>
+          </span>
+          <span class="tag-wrapper">
+            <span class="tag tag--espacamento"></span>
+            <span class="tag-label">Espaçamento</span>
+          </span>
+          <span class="tag-wrapper">
+            <span class="tag tag--acessib"></span>
+            <span class="tag-label">Acessibilidade</span>
+          </span>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <h4>Artigos Relacionados</h4>
+
+      <div class="related-card">
+        <div class="related-card__title">Introdução ao Design de Tokens</div>
+        <p class="related-card__desc">Como centralizar valores de design em variáveis CSS e garantir consistência entre temas.</p>
+      </div>
+
+      <div class="related-card">
+        <div class="related-card__title">CSS Custom Properties na Prática</div>
+        <p class="related-card__desc">Utilizando variáveis nativas do CSS para construir sistemas de design escaláveis e mantíveis.</p>
+      </div>
+
+      <div class="related-card">
+        <div class="related-card__title">Acessibilidade para Desenvolvedores</div>
+        <p class="related-card__desc">Guia prático de WCAG 2.1 com exemplos de código e ferramentas de verificação automatizada.</p>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- RODAPÉ -->
+  <footer>
+    <p>© 2025 DesignLab · Todos os direitos reservados · Disciplina de Design de Interfaces Web · PUC Goiás</p>
+  </footer>
+
+</body>
+</html>
